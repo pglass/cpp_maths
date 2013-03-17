@@ -128,17 +128,17 @@ If the above is in mat_demo.cpp, then compile this with `g++ matrix.hpp matrix.c
 Todo
 ----
 
-    * `Int`: be sure of the values of `sizeof(int)` and `sizeof(long)`
-    * `Int`: implement Karatsuba multiplication 
-    * `Int`: overload `++` and `--` operators
-    * `Mat`: write nicer printing functions that align columns
-    * `Mat`: add a backsubstitution function
-    * `Mat`: add functions to diagonalize a matrix and find the Jordan canonical form. The issue here is that finding the eignevalues normally requires finding the roots of some arbitrary polynomial, which is not easy (see: http://en.wikipedia.org/wiki/Abel-Ruffini_theorem). Still, finding eigenvalues for small sized matrices should be doable.
+* `Int`: be sure of the values of `sizeof(int)` and `sizeof(long)`
+* `Int`: implement Karatsuba multiplication 
+* `Int`: overload `++` and `--` operators
+* `Mat`: write nicer printing functions that align columns
+* `Mat`: add a backsubstitution function
+* `Mat`: add functions to diagonalize a matrix and find the Jordan canonical form. The issue here is that finding the eignevalues normally requires finding the roots of some arbitrary polynomial, which is not easy (see: http://en.wikipedia.org/wiki/Abel-Ruffini_theorem). Still, finding eigenvalues for small sized matrices should be doable.
 
 Future goals 
 ------------
 
-    * An arbitrary precision decimal type
-    * A ratio type and complex type. There's the templated std::complex class and function overloads to work with that (sin, cos, sqrt, etc) which looks acceptable at first glance. C++11 also defines a templated std::ratio class. 
-    * Common functions that work with the arbitrary precision types: sin, cos, tan, atan, sqrt, nroot, and so forth.
-    * Support for stochastic processes: define a list of states, define an initial probability distribution and a transition matrix, simulate paths of the process, stopping times and hitting times.
+* An arbitrary precision decimal type
+* A ratio type and complex type. There's the templated std::complex class and function overloads to work with that (sin, cos, sqrt, etc) which looks acceptable at first glance. C++11 also defines a templated std::ratio class. 
+* Common functions that work with the arbitrary precision types: sin, cos, tan, atan, sqrt, nroot, and so forth.
+* Support for stochastic processes: define a list of states, define an initial probability distribution and a transition matrix, simulate paths of the process, stopping times and hitting times.
