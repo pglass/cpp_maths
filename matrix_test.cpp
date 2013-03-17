@@ -5,7 +5,24 @@
 #include <UnitTest++.h>
 #include "./matrix.hpp"
 
-TEST (matrixEquality) {
+const double EPSILON = .0001;
+
+template <typename T>
+inline T abs(const T& a) { return (a < 0) ? -a : a; }
+
+template <typename T>
+bool matrixFloatEquals(const Mat<T>& x, const Mat<T>& y) {
+    if (x.numRows() != y.numRows() or x.numCols() != y.numCols())
+        return false;
+    
+    for (size_t i = 0; i < x.numRows(); ++i)
+        for (size_t j = 0; j < x.numCols(); ++j)
+            if (abs(x(i, j) - y(i, j)) > EPSILON)
+                return false;
+    return true;
+}
+
+TEST(matrixEquality) {
     Mat<double> a(10, 10);
     Mat<double> b(10, 10);
     Mat<double> c(10, 9);
@@ -37,8 +54,8 @@ TEST (matrixEquality) {
 TEST(matrixNegate) {
     Mat<double> a(10, 10, 5);
     Mat<double> b(10, 10, -5);
-    CHECK(-a == b);
-    CHECK(-b == a);
+    CHECK(matrixFloatEquals(-a, b));
+    CHECK(matrixFloatEquals(-b, a));
 }
 
 TEST(matrixAddition) {
@@ -46,11 +63,11 @@ TEST(matrixAddition) {
     Mat<double> b(10, 10, 2);
     Mat<double> c(10, 10, 3);
     Mat<double> d(9, 9, 3);
-    CHECK((a + b) == c);
+    CHECK(matrixFloatEquals((a + b), c));
     CHECK_THROW(a + d, std::domain_error);
 
     a += b;
-    CHECK(a == c);
+    CHECK(matrixFloatEquals(a, c));
     CHECK_THROW((a += d), std::domain_error);
 }
 
@@ -59,12 +76,12 @@ TEST(matrixSubtraction) {
     Mat<double> b(10, 10, 2);
     Mat<double> c(10, 10, 3);
     Mat<double> d(9, 9, 3);
-    CHECK((a - b) == c);
-    CHECK((b - a) == -c);
+    CHECK(matrixFloatEquals((a-b), c));
+    CHECK(matrixFloatEquals((b-a), -c));
     CHECK_THROW(a - d, std::domain_error);
 
     a -= b;
-    CHECK(a == c);
+    CHECK(matrixFloatEquals(a, c));
     CHECK_THROW((a -= d), std::domain_error);
 }
 
@@ -73,14 +90,14 @@ TEST(matrixScale) {
     Mat<double> b(5, 10, 24);
     Mat<double> c(5, 10, 24);
 
-    CHECK(6.0 * a == c);
-    CHECK(a * 6.0 == c);
-    CHECK(b / 6.0 == a);
+    CHECK(matrixFloatEquals(6.0 * a, c));
+    CHECK(matrixFloatEquals(a * 6.0, c));
+    CHECK(matrixFloatEquals(b / 6.0, a));
 
     b /= 6.0;
-    CHECK(b == a);
+    CHECK(matrixFloatEquals(b, a));
     a *= 6.0;
-    CHECK(a == c);
+    CHECK(matrixFloatEquals(a, c));
 }
 
 TEST(matrixProduct) {
@@ -91,16 +108,20 @@ TEST(matrixProduct) {
     Mat<double> e(3, 2, 4);
     Mat<double> f(3, 3, 16);
     Mat<double> g(2, 2, 24);
-    CHECK((a*a) == b);
+//    CHECK((a*a) == b);
+//    CHECK(c * a == e);
+//    CHECK(c * d == f);
+//    CHECK(d * c == g); 
+    CHECK(matrixFloatEquals(a * a, b));
+    CHECK(matrixFloatEquals(c * a, e));
+    CHECK(matrixFloatEquals(c * d, f));
+    CHECK(matrixFloatEquals(d * c, g));
     CHECK_THROW(a * c, std::domain_error);
-    CHECK(c * a == e);
-    CHECK(c * d == f);
-    CHECK(d * c == g); 
 
     c *= a;
     a *= a;
-    CHECK(c == e);
-    CHECK(a == b);
+    CHECK(matrixFloatEquals(c, e));
+    CHECK(matrixFloatEquals(a, b));
     CHECK_THROW((a *= c), std::domain_error);
 }
 
@@ -109,7 +130,7 @@ TEST(matrixMinor) {
     Mat<double> b(4, 4, 2);
     for (size_t i = 0; i < a.numRows(); ++i)
         for (size_t  j = 0; j < a.numCols(); ++j)
-            CHECK(a.minor(i,j) == b);
+            CHECK(matrixFloatEquals(a.minor(i,j), b));
     double c_vals[] = {
         9, 2, 3, 
         1, 7, 6,
@@ -131,9 +152,12 @@ TEST(matrixMinor) {
     Mat<double> d(d_vals, 2, 2);
     Mat<double> e(e_vals, 2, 2);
     Mat<double> f(f_vals, 2, 2);
-    CHECK(c.minor(0,0) == d);
-    CHECK(c.minor(0,1) == e);
-    CHECK(c.minor(0,2) == f);
+    CHECK(matrixFloatEquals(c.minor(0,0), d));
+    CHECK(matrixFloatEquals(c.minor(0,1), e));
+    CHECK(matrixFloatEquals(c.minor(0,2), f));
+    //CHECK(c.minor(0,0) == d);
+    //CHECK(c.minor(0,1) == e);
+    //CHECK(c.minor(0,2) == f);
 }
 
 TEST(matrixDeterminant) {
@@ -220,8 +244,8 @@ TEST(matrixRREF) {
     Mat<double> b(b_vals, 3, 3);
     Mat<double> c(c_vals, 3, 4);
     Mat<double> d(d_vals, 3, 4);
-    CHECK(a.rref() == b);
-    CHECK(c.rref() == d);
+    CHECK(matrixFloatEquals(a.rref(), b));
+    CHECK(matrixFloatEquals(c.rref(), d));
 }
 
 TEST(matrixInverse) {
@@ -251,10 +275,27 @@ TEST(matrixInverse) {
     Mat<double> e(e_vals, 3, 3);
     Mat<double> x(1, 1, 5);
     Mat<double> y(1, 1, 1.0/5);
-    CHECK(x.inverse() == y);
-    CHECK(a.inverse() == b);
-    CHECK(d.inverse() == e);
+    CHECK(matrixFloatEquals(x.inverse(), y));
+    CHECK(matrixFloatEquals(a.inverse(), b));
+    CHECK(matrixFloatEquals(d.inverse(), e));
     CHECK_THROW(c.inverse(), std::domain_error);
+
+
+    Mat<double> z(3, 3);
+    Mat<double> zz(3, 3);
+    double z_vals[] = {
+        1, 2, 3,
+        4, 3, 4,
+        5, 6, 5
+    };
+    double zz_vals[] = {
+        -1.0/2, 4.0/9, -1.0/18,
+        0, -5.0/9, 4.0/9,
+        1.0/2, 2.0/9, -5.0/18
+    };
+    z.setEntries(z_vals, 9);
+    zz.setEntries(zz_vals, 9);
+    CHECK(matrixFloatEquals(z.inverse(), zz));
 }
 
 TEST(matrixTranspose) {
@@ -271,14 +312,22 @@ TEST(matrixTranspose) {
     };
     Mat<double> x(x_vals, 2, 5);
     Mat<double> y(y_vals, 5, 2);
-    CHECK(x.transpose() == y);
-    CHECK(y.transpose() == x);
+    CHECK(matrixFloatEquals(x.transpose(), y));
+    CHECK(matrixFloatEquals(y.transpose(), x));
 }
 
 TEST(matrixTrace) {
     Mat<double> x(3, 3, 3);
-    CHECK(x.trace() == 3*3*3);
-    CHECK(Mat<double>::identityMatrix(10).trace() == 1);
+    CHECK(x.trace() == 9);
+    CHECK(Mat<double>::identityMatrix(10).trace() == 10);
+
+    double z_vals[] = {
+        1, 2, 3,
+        4, 3, 4,
+        5, 6, 5
+    };
+    Mat<double> z(z_vals, 3, 3);
+    CHECK(z.trace() == 9);
 }
 
 int main(int argc, char* argv[]) {

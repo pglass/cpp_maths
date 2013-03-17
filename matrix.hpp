@@ -20,20 +20,22 @@ class Mat {
     static Mat<T> identityMatrix(size_t size);
     static Mat<T> augmentedMatrix(const Mat<T>& a, const Mat<T>& b);
     
+    Mat(const Mat<T>& x);
     Mat(size_t _rows, size_t _cols);                  // construct an uninitialized Mat 
     Mat(size_t _rows, size_t _cols, const T& _val);   // construct and set entries to val
     Mat(const T* _vals, size_t _rows, size_t _cols);  // construct and set entries to vals
+    ~Mat();
 
     void setEntries(const T& val);                    // set all entries to val
     void setEntries(const T* vals, size_t size);      // set entries to the given array
     void setEntries(const std::vector<T>& vals);      // set entries to the given vector
+    inline size_t numRows() const { return rows; }
+    inline size_t numCols() const { return cols; }
 
     // use m(i, j) or m.entry(i, j) to access entries
     inline T& entry(size_t i, size_t j) const { return data[offset(i, j)]; }
     inline T& operator()(size_t i, size_t j) { return data[offset(i, j)]; }
     inline T operator()(size_t i, size_t j) const { return data[offset(i, j)]; }
-    inline size_t numRows() const { return rows; }
-    inline size_t numCols() const { return cols; }
 
     // scalar-matrix operations
     template <typename S> friend Mat<S> operator - (const Mat<S>& a);
@@ -63,6 +65,18 @@ class Mat {
     Mat<T> cofactor(size_t i, size_t j);  // compute the (i,j)-th cofactor (signed minor)
     Mat<T> rref();                        // compute the reduced row echelon form
     void inplace_rref();
+
+    friend void swap(Mat<T>& a, Mat<T>& b) {
+        using std::swap;
+        swap(a.data, b.data);
+        swap(a.rows, b.rows);
+        swap(a.cols, b.cols);
+    }
+
+    inline void operator=(Mat<T> a) {
+        swap(*this, a);
+        return *this;
+    }
   private:
     size_t rows;
     size_t cols;
@@ -88,6 +102,12 @@ std::ostream& operator<<(std::ostream& out, Mat<T> m) {
 }
 
 template <typename T>
+Mat<T>::Mat(const Mat<T>& x) : rows(x.numRows()), cols(x.numCols()) {
+    data = new T[rows * cols];
+    setEntries(x.data, rows * cols);
+}
+
+template <typename T>
 Mat<T>::Mat(size_t _rows, size_t _cols) : rows(_rows), cols(_cols) {
     data = new T[rows * cols];
 }
@@ -102,6 +122,11 @@ template <typename T>
 Mat<T>::Mat(const T* const _vals, size_t _rows, size_t _cols) : rows(_rows), cols(_cols) {
     data = new T[rows * cols];
     setEntries(_vals, rows * cols);
+}
+
+template <typename T>
+Mat<T>::~Mat() {
+    delete[] data;
 }
 
 template <typename T>
@@ -230,7 +255,7 @@ void operator*=(Mat<T>& a, const Mat<T>& b) {
         for (size_t k = 0; k < a.numCols(); ++k)
             for (size_t j = 0; j < b.numCols(); ++j)
                 r(i, j) += a(i,k) * b(k, j);
-    std::swap(a, r);
+    swap(a, r);
 }
 
 template <typename T>
@@ -318,7 +343,7 @@ T Mat<T>::col_cofactor_expansion() {
  * each row operation alters the determinant by some factor.
  * we maintain the factor as we go, until the matrix is in
  * upper triangular form. The determinant of an upper triangular
- * matrix is simply the trace.
+ * matrix is simply the product of the main diagonal.
  *
  * This is an O(n^3) algorithm for computing the determinant, which
  * is significantly better than a cofactor expansion, which takes O(n!), I think.
@@ -371,7 +396,10 @@ T Mat<T>::determinant() {
         pivot++; 
     }
     end:
-    return tmp.trace() / factor;
+    T prod(1);
+    for (size_t i = 0; i < tmp.numRows(); ++i)
+        prod *= tmp(i, i);
+    return prod / factor;
 }
 
 template <typename T>
@@ -476,9 +504,9 @@ template <typename T>
 T Mat<T>::trace() {
     if (rows != cols)
         throw std::domain_error("trace undefined for non-square matrices");
-    T result(1);
+    T result(0);
     for (size_t i = 0; i < rows; ++i)
-        result *= entry(i, i);
+        result += entry(i, i);
     return result;
 }
 

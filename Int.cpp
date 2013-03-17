@@ -9,9 +9,18 @@ std::ostream& operator<<(std::ostream& out, const Number& x) { return x.print(ou
 std::ostream& Int::print(std::ostream& out) const {
     if (negative)
         out << '-';
-    out << get_bin_from_back(0);    // don't pad the most significant bin
-    for (size_t i = 1; i < bins.size(); ++i)
-        out << std::setw(BIN_WIDTH) << std::setfill('0') << get_bin_from_back(i);
+    size_t i = 0;
+    unsigned int x;
+    while (i < bins.size() and (x = get_bin_from_back(i)) == 0)
+        ++i;
+    if (i == bins.size()) {
+        out << (int) 0;
+    } else {
+        out << get_bin_from_back(i);    // don't pad the most significant bin
+        ++i;
+        for (; i < bins.size(); ++i)
+            out << std::setw(BIN_WIDTH) << std::setfill('0') << get_bin_from_back(i);
+    }
 	return out;
 }
 
