@@ -133,12 +133,16 @@ Todo
 * `Int`: overload `++` and `--` operators
 * `Mat`: write nicer printing functions that align columns
 * `Mat`: add a backsubstitution function
-* `Mat`: add functions to diagonalize a matrix and find the Jordan canonical form. The issue here is that finding the eignevalues normally requires finding the roots of some arbitrary polynomial, which is not easy (see: http://en.wikipedia.org/wiki/Abel-Ruffini_theorem). Still, finding eigenvalues for small sized matrices should be doable.
+* `Mat`: add a function to find the rank of a matrix. I believe this just requires a row reduction and counting the number of nonzero rows.
+* `Mat`: there are various special matrix forms. Add functions that check if a matrix is orthogonal, (anti)symmetric, (anti)Hermitian, normal, unitary, etc. 
+* `Mat`: there are a number of useful [matrix decompositions/factorizations](http://en.wikipedia.org/wiki/Matrix_decomposition).
+* `Mat`: add functions to find the eigensystem/diagonalization of a matrix. Some algorithms [here](http://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Eigenvalue_algorithms) will work. The QR algorithm looks practical but will require other tools first. The Rayleigh method seems to be simple and has quick convergence.
 
-Future goals 
+Future goals
 ------------
 
+* A mathematical vector type
 * An arbitrary precision decimal type
-* A ratio type and complex type. There's the templated std::complex class and function overloads to work with that (sin, cos, sqrt, etc) which looks acceptable at first glance. C++11 also defines a templated std::ratio class. 
+* A ratio type and complex type. There is the templated std::complex class and function overloads to work with that (sin, cos, sqrt, etc) which looks acceptable at first glance. C++11 also defines a templated std::ratio class. 
 * Common functions that work with the arbitrary precision types: sin, cos, tan, atan, sqrt, nroot, and so forth.
 * Support for stochastic processes: define a list of states, define an initial probability distribution and a transition matrix, simulate paths of the process, stopping times and hitting times.
