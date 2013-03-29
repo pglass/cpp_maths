@@ -4,17 +4,14 @@ This is a simple math library in C++.
 
 The following headers are provided. 
 
-    #include "./Int.hpp"   // arbitrary-precision integer Int
+    #include "./Int.hpp"   // arbitrary-precision integer class Int
     #include "./Mat.hpp"   // matrix class Mat
     #include "./Vec.hpp"   // mathematical vector class Vec
 
-Usage of all the classes can be found in the corresponding files in the `demo` folder. Demos should compile with `make int_test`, `make vec_test`, and so forth. Tests depend the lightweight UnitTest++ framework.
-This has been tested using g++ on Debian:
-    
-    gcc version 4.4.5 (Debian 4.4.5-8)
+Usage of all the classes can be found in the corresponding files in the `demo` folder, which should compile with `make int_demo`, `make vec_demo`, and so forth. Tests depend on the lightweight [UnitTest++ framework](http://unittest-cpp.sourceforge.net/). This has been tested with g++ on Debian: `gcc version 4.4.5 (Debian 4.4.5-8)`
 
 ### Int.hpp ###
-`Int` is an arbitrary precision integer implemented as a list of ints. For example, 123456789234567890345678901 is represented as {345678901, 2345678901, 123456789}. Then all operations are done int-by-int which is considerably faster than going digit-by-digit. An `Int` can be constructed from a string or a long (or an int). The standard arithmetic operators (`+`, `-`, `*`, `/`, `%`, `^` `+=`, `-=`, `*=`, `/=`, `%=`, `^=`) and relational operators (`<`, `>`, `>=`, `<=`, `!=`, `==`) are overloaded. Note that `^` is exponentiation and not a bitwise xor.
+`Int` is an arbitrary precision integer implemented as a list of ints. For example, 123456789234567890345678901 is represented as {345678901, 234567890, 123456789}. Then all operations are done int-by-int which is considerably faster than going digit-by-digit. An `Int` can be constructed from a string or a long. The standard arithmetic operators (`+`, `-`, `*`, `/`, `%`, `^` `+=`, `-=`, `*=`, `/=`, `%=`, `^=`) and relational operators (`<`, `>`, `>=`, `<=`, `!=`, `==`) are overloaded. Note that `^` is exponentiation and not a bitwise xor.
 
 ### Mat.hpp ###
 `Mat` is a two-dimensional templated matrix class. Operators are overloaded for matrix-matrix operations (`+`, `-`, `*`, `+=`, `-=`, `*=`), scalar-matrix operations (`*`, `/`, `*=`, `/=`), and comparison (`==`, `!=`). The following functions are provided as members of a `Mat<T> m`:
@@ -41,7 +38,7 @@ The determinant and inverse are computed using row reduction methods, and row re
 
 And the following static methods:
 
-* `constantVec()` returns a Vec with all entries equal
+* `constantVec()` returns a Vec with all entries set to the same value
 * `scalar_triple_product()`
 * `vector_triple_product()`
 
