@@ -1,5 +1,5 @@
-#ifndef _MATRIX_HPP_
-#define _MATRIX_HPP_
+#ifndef _MAT_HPP_
+#define _MAT_HPP_
 #include <cstring>
 #include <iostream>
 #include <vector>
@@ -11,7 +11,7 @@
  *   The matrix is stored as a single contiguous array, and offsets are
  *   computed for two-dimensional indexing.
  *   
- *   "rref" stands for reduced row echelon form.
+ *   Note: "rref" stands for reduced row echelon form.
  */
 template <typename T>
 class Mat {

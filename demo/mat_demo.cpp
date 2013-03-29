@@ -1,7 +1,7 @@
 #include <iostream>
-#include "./matrix.hpp"
-using std::cout;
-using std::endl;
+#include "../Mat.hpp"
+
+using namespace std;
 
 int main() {
     Mat<double> x(3, 4);     // 3 rows, 4 columns; allocated but uninitialized
@@ -24,3 +24,38 @@ int main() {
     cout << "z.inverse() = " << endl << z.inverse() << endl;
     cout << "x.rref() = " << endl << x.rref() << endl; // reduced row echelon form
 }
+
+/* The output is the following, indented for clarity: 
+    x = 
+        1 2 3 4 
+        3 4 5 6 
+        5 6 7 8 
+    y = 
+        5 5 5 
+        5 5 5 
+        5 5 5 
+        5 5 5 
+    z = 
+        1 2 3 
+        4 3 4 
+        5 6 5 
+    x * y = 
+        50 50 50 
+        90 90 90 
+        130 130 130 
+    3.0 * y = 
+        15 15 15 
+        15 15 15 
+        15 15 15 
+        15 15 15 
+    z.trace() = 9
+    z.determinant() = 18
+    z.inverse() = 
+        -0.5 0.444444 -0.0555556 
+        0 -0.555556 0.444444 
+        0.5 0.222222 -0.277778 
+    x.rref() = 
+        1 0 -1 -2 
+        -0 1 2 3 
+        0 0 0 0 
+*/

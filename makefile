@@ -4,24 +4,28 @@ CXXFLAGS=-Wall -O2
 
 INCLUDE=/usr/local/include
 LIB=/usr/local/lib
+TEST_DIR=./test
+DEMO_DIR=./demo
 
-int_test: Int.o numbers.hpp int_test.cpp
-	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) Int.o int_test.cpp -o $@ -lUnitTest++
+vec_test: common.hpp Vec.hpp $(TEST_DIR)/vec_test.cpp
+	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -o $@ -lUnitTest++
+vec_demo: common.hpp Vec.hpp $(DEMO_DIR)/vec_demo.cpp
+	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -o $@
 
-matrix_test: matrix.o matrix.hpp matrix_test.cpp
-	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) matrix.o matrix_test.cpp -o $@ -lUnitTest++
+int_test: common.hpp numbers.hpp Int.hpp $(TEST_DIR)/int_test.cpp
+	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -o $@ -lUnitTest++
+int_demo: common.hpp numbers.hpp Int.hpp $(DEMO_DIR)/int_demo.cpp
+	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -o $@
 
-all_tests:
-	make int_test
-	make matrix_test
+mat_test: common.hpp Mat.hpp $(TEST_DIR)/mat_test.cpp
+	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -o $@ -lUnitTest++
+mat_demo: common.hpp Mat.hpp $(DEMO_DIR)/mat_demo.cpp
+	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -o $@
+
+all_tests: int_test mat_test vec_test
 	./int_test
-	./matrix_test
-
-Int.o: numbers.hpp Int.cpp
-	$(CXX) $(CXXFLAGS) -c $^
-
-matrix.o: matrix.hpp matrix.cpp
-	$(CXX) $(CXXFLAGS) -c $^
+	./mat_test
+	./vec_test
 
 clean:
-	rm -rf *.o *.gch int_test matrix_test
+	rm -rf *.o *.gch int_test int_demo mat_test mat_demo vec_test vec_demo

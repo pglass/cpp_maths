@@ -3,12 +3,8 @@
 #include <stdexcept>
 #include <vector>
 #include <UnitTest++.h>
-#include "./matrix.hpp"
-
-const double EPSILON = .0001;
-
-template <typename T>
-inline T abs(const T& a) { return (a < 0) ? -a : a; }
+#include "../Mat.hpp"
+#include "../common.hpp"
 
 template <typename T>
 bool matrixFloatEquals(const Mat<T>& x, const Mat<T>& y) {
@@ -17,7 +13,7 @@ bool matrixFloatEquals(const Mat<T>& x, const Mat<T>& y) {
     
     for (size_t i = 0; i < x.numRows(); ++i)
         for (size_t j = 0; j < x.numCols(); ++j)
-            if (abs(x(i, j) - y(i, j)) > EPSILON)
+            if (!float_equals(x(i, j), y(i, j)))
                 return false;
     return true;
 }

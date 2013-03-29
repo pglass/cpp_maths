@@ -1,18 +1,10 @@
 #include <sstream>
 #include <UnitTest++.h>
-#include "./numbers.hpp"
+#include "../Int.hpp"
+#include "../common.hpp"
 
 using std::cout;
 using std::endl;
-
-bool testOutput(const Int& y, const std::string& expected) {
-    std::stringstream ss;
-    ss << y;
-    bool result = (ss.str().compare(expected) == 0);
-    if (!result)
-        cout << "FAILED: " << ss.str() << " : " << expected << endl;
-    return result;
-}
 
 bool testLessThan(const Int& x, const Int& y, bool expected) {
     bool lt = (x < y);
