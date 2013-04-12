@@ -33,7 +33,6 @@ bool testAddition(const Int& x, const Int& y, const Int& expected) {
         return false;
     }
     return true;
-
 }
 
 bool testSubtraction(const Int& x, const Int& y, const Int& expected) {
@@ -145,6 +144,16 @@ bool testExponentiation(const Int& x, const Int& y, const Int& expected) {
         return false;
     }
     return true;
+}
+
+bool testTimesPowerTen(const Int& x, int power, const Int& expected) {
+    Int copy(x);
+    copy.times_power_ten(power);
+    bool result = (copy == expected);
+    if (!result)
+        cout << "FAILED: " << x << " times_power_ten(" << power << ") = " 
+            << copy << " : " << expected << endl;
+    return result;
 }
 
 TEST(printInt) {
@@ -352,6 +361,71 @@ TEST(exponentiation) {
 
     CHECK(testExponentiation(Int("987"), Int("20"),
         Int("769738223842181441453473918342107866070875104572033095898801")));
+}
+
+TEST(timesPowerTen) {
+    CHECK(testTimesPowerTen(Int(2),  0, Int("2"))); 
+    CHECK(testTimesPowerTen(Int(2),  1, Int("20"))); 
+    CHECK(testTimesPowerTen(Int(2),  2, Int("200"))); 
+    CHECK(testTimesPowerTen(Int(2),  3, Int("2000"))); 
+    CHECK(testTimesPowerTen(Int(2),  4, Int("20000"))); 
+    CHECK(testTimesPowerTen(Int(2),  5, Int("200000"))); 
+    CHECK(testTimesPowerTen(Int(2),  6, Int("2000000"))); 
+    CHECK(testTimesPowerTen(Int(2),  7, Int("20000000"))); 
+    CHECK(testTimesPowerTen(Int(2),  8, Int("200000000"))); 
+    CHECK(testTimesPowerTen(Int(2),  9, Int("2000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 10, Int("20000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 11, Int("200000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 12, Int("2000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 13, Int("20000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 14, Int("200000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 15, Int("2000000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 16, Int("20000000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 17, Int("200000000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 18, Int("2000000000000000000"))); 
+    CHECK(testTimesPowerTen(Int(2), 19, Int("20000000000000000000"))); 
+
+    CHECK(testTimesPowerTen(Int("2"),                     0,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("20"),                   -1,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("200"),                  -2,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("2000"),                 -3,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("20000"),                -4,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("200000"),               -5,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("2000000"),              -6,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("20000000"),             -7,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("200000000"),            -8,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("2000000000"),           -9,  Int(2))); 
+    CHECK(testTimesPowerTen(Int("20000000000"),          -10, Int(2))); 
+    CHECK(testTimesPowerTen(Int("200000000000"),         -11, Int(2))); 
+    CHECK(testTimesPowerTen(Int("2000000000000"),        -12, Int(2))); 
+    CHECK(testTimesPowerTen(Int("20000000000000"),       -13, Int(2))); 
+    CHECK(testTimesPowerTen(Int("200000000000000"),      -14, Int(2))); 
+    CHECK(testTimesPowerTen(Int("2000000000000000"),     -15, Int(2))); 
+    CHECK(testTimesPowerTen(Int("20000000000000000"),    -16, Int(2))); 
+    CHECK(testTimesPowerTen(Int("200000000000000000"),   -17, Int(2))); 
+    CHECK(testTimesPowerTen(Int("2000000000000000000"),  -18, Int(2))); 
+    CHECK(testTimesPowerTen(Int("20000000000000000000"), -19, Int(2))); 
+
+    CHECK(testTimesPowerTen(Int("2"),                    -1,  Int(0))); 
+    CHECK(testTimesPowerTen(Int("20"),                   -2,  Int(0))); 
+    CHECK(testTimesPowerTen(Int("200"),                  -3,  Int(0))); 
+    CHECK(testTimesPowerTen(Int("2000"),                 -4,  Int(0))); 
+    CHECK(testTimesPowerTen(Int("20000"),                -5,  Int(0))); 
+    CHECK(testTimesPowerTen(Int("2"),                    -11, Int(0))); 
+    CHECK(testTimesPowerTen(Int("20"),                   -12, Int(0))); 
+    CHECK(testTimesPowerTen(Int("200"),                  -13, Int(0))); 
+    CHECK(testTimesPowerTen(Int("2000"),                 -14, Int(0))); 
+    CHECK(testTimesPowerTen(Int("20000"),                -15, Int(0))); 
+    CHECK(testTimesPowerTen(Int("20000000000"),          -11, Int(0))); 
+    CHECK(testTimesPowerTen(Int("200000000000"),         -12, Int(0))); 
+    CHECK(testTimesPowerTen(Int("2000000000000"),        -13, Int(0))); 
+    CHECK(testTimesPowerTen(Int("20000000000000"),       -14, Int(0))); 
+    CHECK(testTimesPowerTen(Int("200000000000000"),      -15, Int(0))); 
+    CHECK(testTimesPowerTen(Int("20000000000"),          -21, Int(0))); 
+    CHECK(testTimesPowerTen(Int("200000000000"),         -22, Int(0))); 
+    CHECK(testTimesPowerTen(Int("2000000000000"),        -23, Int(0))); 
+    CHECK(testTimesPowerTen(Int("20000000000000"),       -24, Int(0))); 
+    CHECK(testTimesPowerTen(Int("200000000000000"),      -25, Int(0))); 
 }
 
 int main() {

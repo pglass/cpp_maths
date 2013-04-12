@@ -1,14 +1,17 @@
 Overview
 ========
-This is a simple math library in C++.
+This is a math library in C++.
 
 The following headers are provided. 
 
     #include "./Int.hpp"   // arbitrary-precision integer class Int
     #include "./Mat.hpp"   // matrix class Mat
     #include "./Vec.hpp"   // mathematical vector class Vec
+    #include "./Frac.hpp"  // fraction class Frac
 
-Usage of all the classes can be found in the corresponding files in the `demo` folder, which should compile with `make int_demo`, `make vec_demo`, and so forth. Tests depend on the lightweight [UnitTest++ framework](http://unittest-cpp.sourceforge.net/). This has been tested with g++ on Debian: `gcc version 4.4.5 (Debian 4.4.5-8)`
+Usage of all the classes can be found in the corresponding files in the `demo` folder, which should compile with `make int_demo`, `make vec_demo`, and so forth. 
+
+This has been tested with g++ on Debian: `gcc version 4.4.5 (Debian 4.4.5-8). Tests depend on the lightweight [UnitTest++ framework](http://unittest-cpp.sourceforge.net/).
 
 ### Int.hpp ###
 `Int` is an arbitrary precision integer implemented as a list of ints. For example, 123456789234567890345678901 is represented as {345678901, 234567890, 123456789}. Then all operations are done int-by-int which is considerably faster than going digit-by-digit. An `Int` can be constructed from a string or a long. The standard arithmetic operators (`+`, `-`, `*`, `/`, `%`, `^` `+=`, `-=`, `*=`, `/=`, `%=`, `^=`) and relational operators (`<`, `>`, `>=`, `<=`, `!=`, `==`) are overloaded. Note that `^` is exponentiation and not a bitwise xor.
@@ -42,25 +45,33 @@ And the following static methods:
 * `scalar_triple_product()`
 * `vector_triple_product()`
 
+### Frac.hpp ###
+`Frac` is a fraction type, or a ratio of two numbers: `(355/113)`. A Frac can be constructed from two Ints, or from a string like `"-355/113"`. The arithmetic and relational operators are overloaded, and the following functions are provided.
+
+* `reciprocal()` returns the inverse
+* static function `GCD()` computes the greatest common denominator of two `Ints`
+* static function `from_double()` will produce a Frac that approximates the value of a double
+
 Todo
 ----
 
+* More test cases is always good.
 * `Int`: be sure of the values of `sizeof(int)` and `sizeof(long)`
 * `Int`: implement Karatsuba multiplication 
 * `Int`: overload `++` and `--` operators
 * `Int`: a method `times_power_of_ten(power)` (or similar) for more efficient digit-shifting
+* `Frac`: Need to overload `^=` and invert the fraction on negative exponents
 * `Mat`: write nicer printing functions that align columns
 * `Mat`: add a backsubstitution function
 * `Mat`: add a function to find the rank of a matrix. I believe this just requires a row reduction and counting the number of nonzero rows.
 * `Mat`: there are various special matrix forms. Add functions that check if a matrix is orthogonal, (anti)symmetric, (anti)Hermitian, normal, unitary, etc. 
 * `Mat`: there are a number of useful [matrix decompositions/factorizations](http://en.wikipedia.org/wiki/Matrix_decomposition).
 * `Mat`: add functions to find the eigensystem/diagonalization of a matrix. Some algorithms [here](http://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Eigenvalue_algorithms) will work. The QR algorithm looks practical but will require other tools first. The Rayleigh method seems to be simple and has quick convergence.
-
 Future goals
 ------------
 
 * An arbitrary precision decimal type
-* A ratio type and complex type. There is the templated std::complex class and function overloads to work with that (sin, cos, sqrt, etc) which is worth a look. C++11 also defines a templated std::ratio class. 
-* A class that represents a polynomial expression in a single variable. Give it a variable name, and a degree or list of coefficients. Then we can define +-*/ for polynomials, find roots, evaluate at given points, take derivatives and integrals, etc.
+* A complex class
+* A class that represents a multivariate polynomial
 * Common functions that work with the arbitrary precision types: sin, cos, tan, atan, sqrt, nroot, and so forth.
 * Support for stochastic processes: define a list of states, define an initial probability distribution and a transition matrix, simulate paths of the process, stopping times and hitting times.

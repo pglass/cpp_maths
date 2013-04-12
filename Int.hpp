@@ -39,22 +39,24 @@ unsigned int parse_int(const std::string& x) {
  *  computing the carry and adding that to the sum of the second bins from each Int,
  *  and so on, which takes the most advantage of integer arithmetic compared to
  *  having any fewer digits per bin.
+ *
+ *  Furthermore, the least significant bin is store at the lowest index.
  *  
- *  This assumes sizeof(int) = 4 (32 bits) and sizeof(long) = 8 (64 bits). 
- *  This use a 64-bit long to temporarily store the product of two ints. If there 
+ *  This also assumes sizeof(int) = 4 (32 bits) and sizeof(long) = 8 (64 bits). 
+ *  This uses a 64-bit long to temporarily store the product of two ints. If there 
  *  is at most a 32-bit int available, then the code would need to be changed to use 
  *  16 bits per bin (4 decimal digits) so that the product of two bins does not 
  *  overflow a 32-bit int. (This can be done for portability, but that's a large task).
  */
 class Int : public Number {
   public:
-    static const size_t BIN_WIDTH = 9;
-    static const unsigned int BIN_LIMIT = 1000000000;
+    static const int BIN_WIDTH = 9;
+    static const int BIN_LIMIT = 1000000000;
 
     Int();
     Int(const Int& x, size_t shift);
     Int(long x, size_t shift = 0);
-    Int(const std::string& x);
+    explicit Int(const std::string& x);
 
     friend Int operator - (const Int& x);
     friend Int operator + (const Int& x, const Int& y);
@@ -79,6 +81,13 @@ class Int : public Number {
     friend bool operator == (const Int& x, const Int& y) { return x.cmp(y) == 0; }
 
     virtual std::ostream& print(std::ostream& out) const;
+
+    bool is_int(int x) const;
+    int cmp(const Int& y) const;
+    inline bool is_odd() const { return bins[0] % 2 == 1; }
+    inline bool is_negative() const { return negative; }
+    inline void negate() { negative = is_int(0) ? false : !negative; }
+    void times_power_ten(int power);
   private:
     std::deque<unsigned int> bins;
     bool negative;
@@ -99,13 +108,9 @@ class Int : public Number {
     friend void modulo(const Int& x, const Int& y, Int& result);
     friend void exponentiate(const Int& x, const Int& exp, Int& result);
 
-    bool is_int(int x) const;
     void set_int(int x);
-    int cmp(const Int& y) const;
     int cmp_bins(const Int& x) const;
 
-    inline bool is_odd() const { return bins[0] % 2 == 1; }
-    inline void negate() { negative = is_int(0) ? false : !negative; }
     inline void shift(size_t amount) { bins.push_front(0); }
     inline void set_bin_from_back(int i, int val) { bins[bins.size() - 1 - i] = val; }
     inline unsigned int get_bin_from_back(int i) const { return bins[bins.size() - 1 - i]; }
@@ -323,16 +328,16 @@ Int::Int(const std::string& x) {
         return;
     }    
 
-    size_t i = 0;
+    int i = 0;
     negative = (x[i] == '-');
     if (negative or x[i] == '+')
         ++i;
 
     // skip leading zeroes
-    size_t k = i;
-    while (k < x.size() and x[k] == '0')
+    int k = i;
+    while (k < (int) x.size() and x[k] == '0')
         ++k;
-    if (k > i and k < x.size())
+    if (k > i and k < (int) x.size())
         i = k;
     else if (k > i) {
         bins.push_back(0);
@@ -341,7 +346,7 @@ Int::Int(const std::string& x) {
     }
   
     // now i is the offset after skipping '-' and leading zeroes.
-    if (x.size() - i <= BIN_WIDTH) {
+    if (((int) x.size()) - i <= BIN_WIDTH) {
         bins.push_back(parse_int(x.substr(i, x.length() - i)));
     } else {
         // j is the index in x of the digit starting the first full bin.
@@ -476,6 +481,30 @@ void Int::subtract(const Int& x) {
         }
         bins[i] = diff;
         ++i;
+    }
+}
+
+void Int::times_power_ten(int power) {
+    int pow = power;
+    if (pow > 0) {
+        for (int i = 0; i < pow % BIN_WIDTH; ++i)
+            (*this) *= 10;
+        while (pow >= BIN_WIDTH) {
+            bins.push_front(0);
+            pow -= BIN_WIDTH;
+        }
+    } else if (pow < 0) {
+        pow = -pow;
+        while (pow >= BIN_WIDTH and !bins.empty()) {
+            bins.pop_front();
+            pow -= BIN_WIDTH;
+        }
+        if (bins.empty()) {
+            set_int(0);
+            return;
+        }
+        for (int i = 0; i < pow % BIN_WIDTH; ++i)
+            (*this) /= 10;
     }
 }
 
