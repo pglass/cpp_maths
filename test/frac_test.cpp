@@ -32,31 +32,31 @@ TEST(constructionAndOutput) {
     CHECK_THROW(Frac("1/"), invalid_argument);
     CHECK_THROW(Frac("  1   /   "), invalid_argument);
 
-    CHECK(testOutput(from_double(0.0), "(0/1)"));
-    CHECK(testOutput(from_double(1.0), "(1/1)"));
-    CHECK(testOutput(from_double(-1.0), "(-1/1)"));
-    CHECK(testOutput(from_double(1.1), "(11/10)"));
-    CHECK(testOutput(from_double(11.1), "(111/10)"));
-    CHECK(testOutput(from_double(1.11), "(111/100)"));
-    CHECK(testOutput(from_double(0.111), "(111/1000)"));
-    CHECK(testOutput(from_double(0.1111), "(1111/10000)"));
-    CHECK(testOutput(from_double(0.11111), "(11111/100000)"));
-    CHECK(testOutput(from_double(0.123456789), "(123456789/1000000000)"));
-//    CHECK(testOutput(from_double(987654321.123456789), "(987654321123456789/1000000000000000000)"));
-    CHECK(testOutput(from_double(dbl_limits.max()), 
+    CHECK(testOutput(Frac::from_double(0.0), "(0/1)"));
+    CHECK(testOutput(Frac::from_double(1.0), "(1/1)"));
+    CHECK(testOutput(Frac::from_double(-1.0), "(-1/1)"));
+    CHECK(testOutput(Frac::from_double(1.1), "(11/10)"));
+    CHECK(testOutput(Frac::from_double(11.1), "(111/10)"));
+    CHECK(testOutput(Frac::from_double(1.11), "(111/100)"));
+    CHECK(testOutput(Frac::from_double(0.111), "(111/1000)"));
+    CHECK(testOutput(Frac::from_double(0.1111), "(1111/10000)"));
+    CHECK(testOutput(Frac::from_double(0.11111), "(11111/100000)"));
+    CHECK(testOutput(Frac::from_double(0.123456789), "(123456789/1000000000)"));
+//    CHECK(testOutput(Frac::from_double(987654321.123456789), "(987654321123456789/1000000000000000000)"));
+    CHECK(testOutput(Frac::from_double(dbl_limits.max()), 
         "(1797693134862315708145274237317043567980705675258449965989174768031"
          "5726078002853876058955863276687817154045895351438246423432132688946"
          "4182768467546703537516986049910576551282076245490090389328944075868"
          "5084551339423045832369032229481658085593321233482747978262041447231"
          "68738177180919299881250404026184124858368/1)"));
 
-	CHECK(testOutput(from_double(1.00000000000000000000000000001), "(1/1)"));
-    CHECK(testOutput(from_double(dbl_limits.min()), 
+	CHECK(testOutput(Frac::from_double(1.00000000000000000000000000001), "(1/1)"));
+    CHECK(testOutput(Frac::from_double(dbl_limits.min()), 
 		"(0/1)"));
 
-    CHECK_THROW(from_double(dbl_limits.infinity()), invalid_argument);
-    CHECK_THROW(from_double(dbl_limits.quiet_NaN()), invalid_argument);
-    CHECK_THROW(from_double(dbl_limits.signaling_NaN()), invalid_argument);
+    CHECK_THROW(Frac::from_double(dbl_limits.infinity()), invalid_argument);
+    CHECK_THROW(Frac::from_double(dbl_limits.quiet_NaN()), invalid_argument);
+    CHECK_THROW(Frac::from_double(dbl_limits.signaling_NaN()), invalid_argument);
 }
 
 TEST(relationalOperators) {
@@ -108,6 +108,14 @@ TEST(additionAndSubtraction) {
     c = Frac(x);
     c -= c;
     CHECK(c == Frac(0));
+
+    // check +=, -= with an Int
+    Int i(3);
+    c = Frac(x);
+    c += i;
+    CHECK(c == Frac(9, 2));
+    c -= i;
+    CHECK(c == Frac(3, 2));
 }
 
 TEST(multiplicationAndDivision) {
@@ -135,11 +143,21 @@ TEST(multiplicationAndDivision) {
     c = Frac(a);
     c /= b;
     CHECK(c == Frac(2, 3));
+
+    // check *=, /= with an Int
+    Int i(3);
+    c = Frac(x);
+    c *= i;
+    CHECK(c == Frac(9, 2));
+    c /= i;
+    CHECK(c == Frac(3, 2));
 }
 
 TEST(exponentiation) {
     Frac x(3, 2);
     CHECK((x ^ 3) == Frac(27, 8));
+    x ^= 3;
+    CHECK(x == Frac(27, 8));
 }
 
 int main() {

@@ -19,6 +19,7 @@ const bool DEBUG_FRAC = false;
  */
 class Frac : public Number {
   public:
+    Frac() : tt(0), bb(1) { }
     explicit Frac(int x) : tt(x), bb(1) { }
     explicit Frac(const Int& x) : tt(x), bb(1) { }
     explicit Frac(const string& x);
@@ -29,6 +30,7 @@ class Frac : public Number {
     }
 
     static Int GCD(const Int& a, const Int& b); /* move this somewhere else? */
+    static Frac from_double(double x, int precision = 15); 
     Frac reciprocal() { return Frac(bb, tt); }
     virtual ostream& print(ostream& out) const;
 
@@ -39,21 +41,32 @@ class Frac : public Number {
     friend bool operator >  (const Frac& x, const Frac& y);
     friend bool operator >= (const Frac& x, const Frac& y);
     
-    friend Frac operator + (const Frac& x, const Frac& y);
-    friend Frac operator * (const Frac& x, const Frac& y);
-    friend Frac operator - (const Frac& x, const Frac& y);
-    friend Frac operator / (const Frac& x, const Frac& y);
+    friend Frac operator + (const Frac& x, const Frac& y) { return Frac(x.tt * y.bb + y.tt * x.bb, x.bb * y.bb); }
+    friend Frac operator - (const Frac& x, const Frac& y) { return Frac(x.tt * y.bb - y.tt * x.bb, x.bb * y.bb); }
+    friend Frac operator * (const Frac& x, const Frac& y) { return Frac(x.tt * y.tt, x.bb * y.bb); }
+    friend Frac operator / (const Frac& x, const Frac& y) { return Frac(x.tt * y.bb, x.bb * y.tt); }
     
+    friend Frac operator + (const Int& a, const Frac& x) { return Frac(a * x.bb + x.tt, x.bb); }
+    friend Frac operator - (const Int& a, const Frac& x) { return Frac(a * x.bb - x.tt, x.bb); }
+    friend Frac operator * (const Int& a, const Frac& x) { return Frac(a * x.tt, x.bb); }
+    friend Frac operator / (const Int& a, const Frac& x) { return Frac(a * x.bb, x.tt); }
+
+    friend Frac operator + (const Frac& x, const Int& a) { return Frac(x.tt + a * x.bb, x.bb); }
+    friend Frac operator - (const Frac& x, const Int& a) { return Frac(x.tt - a * x.bb, x.bb); }
+    friend Frac operator * (const Frac& x, const Int& a) { return Frac(a * x.tt, x.bb); }
+    friend Frac operator / (const Frac& x, const Int& a) { return Frac(x.tt, x.bb * a); }
+    friend Frac operator ^ (const Frac& x, const Int& a); 
+
     friend void operator += (Frac& x, const Frac& y);
     friend void operator *= (Frac& x, const Frac& y);
     friend void operator -= (Frac& x, const Frac& y);
     friend void operator /= (Frac& x, const Frac& y);
 
-    friend Frac operator * (const Int& a, const Frac& x) { return Frac(a * x.tt, x.bb); }
-    friend Frac operator * (const Frac& x, const Int& a) { return Frac(a * x.tt, x.bb); }
-    friend Frac operator / (const Int& a, const Frac& x) { return Frac(a * x.bb, x.tt); }
-    friend Frac operator / (const Frac& x, const Int& a) { return Frac(x.tt, x.bb * a); }
-    friend Frac operator ^ (const Frac& x, const Int& a) { return Frac(x.tt ^ a, x.bb ^ a); }
+    friend void operator += (Frac& x, const Int& a); 
+    friend void operator -= (Frac& x, const Int& a); 
+    friend void operator *= (Frac& x, const Int& a); 
+    friend void operator /= (Frac& x, const Int& a); 
+    friend void operator ^= (Frac& x, const Int& a); 
   private:
     Int tt, bb; /* top, bottom */
     void normalize(); 
@@ -73,7 +86,7 @@ ostream& Frac::print(ostream& out) const {
  *      too low will not capture enough digits and give a fraction
  *      that does not correctly represent the original double.
  */
-Frac from_double(double x, int precision = 15) {
+Frac Frac::from_double(double x, int precision) {
     /* convert to a string and parse from there */
     stringstream ss;
     ss.precision(precision);
@@ -156,18 +169,10 @@ bool operator> (const Frac& x, const Frac& y) { return y < x; }
 bool operator<=(const Frac& x, const Frac& y) { return !(y < x); }
 bool operator>=(const Frac& x, const Frac& y) { return !(x < y); }
 
-Frac operator+(const Frac& x, const Frac& y) {
-    return Frac(x.tt * y.bb + y.tt * x.bb, x.bb * y.bb);
-}
-
 void operator+=(Frac& x, const Frac& y) {
     x.tt = x.tt * y.bb + y.tt * x.bb;
     x.bb *= y.bb;
     x.normalize();
-}
-
-Frac operator-(const Frac& x, const Frac& y) {
-    return Frac(x.tt * y.bb - y.tt * x.bb, x.bb * y.bb);
 }
 
 void operator-=(Frac& x, const Frac& y) {
@@ -176,18 +181,10 @@ void operator-=(Frac& x, const Frac& y) {
     x.normalize();
 }
 
-Frac operator*(const Frac& x, const Frac& y) {
-    return Frac(x.tt * y.tt, x.bb * y.bb);
-}
-
 void operator*=(Frac& x, const Frac& y) {
     x.tt *= y.tt;
     x.bb *= y.bb;
     x.normalize();
-}
-
-Frac operator/(const Frac& x, const Frac& y) {
-    return Frac(x.tt * y.bb, x.bb * y.tt);
 }
 
 void operator/=(Frac& x, const Frac& y) {
@@ -197,4 +194,44 @@ void operator/=(Frac& x, const Frac& y) {
     x.normalize();
 }
 
+Frac operator^(const Frac& x, const Int& a) { 
+    if (a.is_negative()) {
+        Int neg_a = -a;
+        return Frac(x.bb ^ neg_a, x.tt ^ neg_a); 
+    } else {
+        return Frac(x.tt ^ a, x.bb ^ a);
+    }
+}
+
+void operator+=(Frac& x, const Int& a) {
+    x.tt += x.bb * a;
+    x.normalize();
+}
+
+void operator-=(Frac& x, const Int& a) {
+    x.tt -= x.bb * a;
+    x.normalize();
+}
+
+void operator*=(Frac& x, const Int& a) {
+    x.tt *= a;
+    x.normalize();
+}
+
+void operator/=(Frac& x, const Int& a) {
+    x.bb *= a;
+    x.normalize();
+}
+
+void operator^=(Frac& x, const Int& a) {
+    if (a.is_negative()) {
+        Int neg_a = -a;
+        x.bb ^= neg_a;
+        x.tt ^= neg_a;
+    } else {
+        x.bb ^= a;
+        x.tt ^= a;
+    }   
+    x.normalize();
+}
 #endif

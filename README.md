@@ -59,14 +59,12 @@ Todo
 * `Int`: be sure of the values of `sizeof(int)` and `sizeof(long)`
 * `Int`: implement Karatsuba multiplication 
 * `Int`: overload `++` and `--` operators
-* `Int`: a method `times_power_of_ten(power)` (or similar) for more efficient digit-shifting
-* `Frac`: Need to overload `^=` and invert the fraction on negative exponents
 * `Mat`: write nicer printing functions that align columns
 * `Mat`: add a backsubstitution function
 * `Mat`: add a function to find the rank of a matrix. I believe this just requires a row reduction and counting the number of nonzero rows.
-* `Mat`: there are various special matrix forms. Add functions that check if a matrix is orthogonal, (anti)symmetric, (anti)Hermitian, normal, unitary, etc. 
-* `Mat`: there are a number of useful [matrix decompositions/factorizations](http://en.wikipedia.org/wiki/Matrix_decomposition).
 * `Mat`: add functions to find the eigensystem/diagonalization of a matrix. Some algorithms [here](http://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Eigenvalue_algorithms) will work. The QR algorithm looks practical but will require other tools first. The Rayleigh method seems to be simple and has quick convergence.
+* `Mat`: there are a number of other useful [matrix decompositions](http://en.wikipedia.org/wiki/Matrix_decomposition).
+
 Future goals
 ------------
 

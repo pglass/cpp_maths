@@ -10,7 +10,7 @@ DEMO_DIR=./demo
 frac_test: common.hpp numbers.hpp Int.hpp Frac.hpp $(TEST_DIR)/frac_test.cpp
 	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^ -lUnitTest++
 	mv a.out $@
-frac_demo: common.hpp numbers.hpp Int.hpp Frac.hpp $(TEST_DIR)/frac_demo.cpp
+frac_demo: common.hpp numbers.hpp Int.hpp Frac.hpp $(DEMO_DIR)/frac_demo.cpp
 	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^
 	mv a.out $@
 
@@ -35,10 +35,17 @@ mat_demo: common.hpp Mat.hpp $(DEMO_DIR)/mat_demo.cpp
 	$(CXX) $(CXXFLAGS) -L$(LIB) -I$(INCLUDE) $^
 	mv a.out $@
 
-all_tests: int_test mat_test vec_test
+all_tests: int_test mat_test vec_test frac_test
 	./int_test
 	./mat_test
 	./vec_test
+	./frac_test
+
+all_demos: int_demo mat_demo vec_demo frac_demo
+	./int_demo
+	./mat_demo
+	./vec_demo
+	./frac_demo
 
 clean:
-	rm -rf *.o *.gch int_test int_demo mat_test mat_demo vec_test vec_demo frac_test
+	rm -rf *.o *.gch int_test int_demo mat_test mat_demo vec_test vec_demo frac_test frac_demo
