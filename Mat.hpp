@@ -61,7 +61,7 @@ class Mat {
     T col_cofactor_expansion();           // cofactor expansion along the first column
     Mat<T> inverse();
     Mat<T> transpose();
-    Mat<T> minor(size_t i, size_t j);     // compute the (i,j)-th minor
+    Mat<T> first_minor(size_t i, size_t j);     // compute the (i,j)-th minor
     Mat<T> cofactor(size_t i, size_t j);  // compute the (i,j)-th cofactor (signed minor)
     Mat<T> rref();                        // compute the reduced row echelon form
     void inplace_rref();
@@ -194,7 +194,6 @@ void operator-=(Mat<T>& a, const Mat<T>& b) {
             a(i, j) -= b(i, j);
 }
 
-
 template <typename T>
 Mat<T> operator*(const T& a, const Mat<T>& m) {
     Mat<T> r(m.numRows(), m.numCols());
@@ -275,7 +274,7 @@ bool operator!=(const Mat<T>& a, const Mat<T>& b) {
 }
 
 template <typename T>
-Mat<T> Mat<T>::minor(size_t i, size_t j) {
+Mat<T> Mat<T>::first_minor(size_t i, size_t j) {
     Mat<T> r(rows - 1, cols - 1);
     int ii, jj;
     for (size_t m = 0; m < r.numRows(); ++m) {
@@ -291,8 +290,8 @@ Mat<T> Mat<T>::minor(size_t i, size_t j) {
 template <typename T>
 Mat<T> Mat<T>::cofactor(size_t i, size_t j) {
     if ((i + j) % 2 == 1)
-        return -minor(i, j);
-    return minor(i, j);
+        return -first_minor(i, j);
+    return first_minor(i, j);
 }
 
 template <typename T>
@@ -309,9 +308,9 @@ T Mat<T>::row_cofactor_expansion() {
     for (size_t j = 0; j < cols; ++j) {
         if (entry(row, j) != 0) {
             if ((row + j) % 2 == 1)
-                result -= entry(row, j) * minor(row, j).row_cofactor_expansion();
+                result -= entry(row, j) * first_minor(row, j).row_cofactor_expansion();
             else
-                result += entry(row, j) * minor(row, j).row_cofactor_expansion();
+                result += entry(row, j) * first_minor(row, j).row_cofactor_expansion();
         }
     }
     return result;
@@ -331,17 +330,17 @@ T Mat<T>::col_cofactor_expansion() {
     for (size_t i = 0; i < rows; ++i) {
         if (entry(i, col) != 0) {
             if ((i + col) % 2 == 1)
-                result -= entry(i, col) * minor(i, col).col_cofactor_expansion();
+                result -= entry(i, col) * first_minor(i, col).col_cofactor_expansion();
             else
-                result += entry(i, col) * minor(i, col).col_cofactor_expansion();
+                result += entry(i, col) * first_minor(i, col).col_cofactor_expansion();
         }
     }
     return result;
 }
 
-/* compute the determinant by row reducing.
- * each row operation alters the determinant by some factor.
- * we maintain the factor as we go, until the matrix is in
+/* Compute the determinant by row reducing.
+ * Each row operation alters the determinant by some factor.
+ * We maintain the factor as we go, until the matrix is in
  * upper triangular form. The determinant of an upper triangular
  * matrix is simply the product of the main diagonal.
  *
@@ -362,10 +361,8 @@ T Mat<T>::determinant() {
         return data[0];
     else if (rows == 2)
         return data[0] * data[3] - data[1] * data[2];
-
     Mat<T> tmp(*this);
     T factor(1);
-
     size_t pivot = 0;
     for (size_t r = 0; r < tmp.numRows(); ++r) {
         if (tmp.numCols() <= pivot)
@@ -385,7 +382,6 @@ T Mat<T>::determinant() {
             tmp.swap_rows(i, r);
             factor *= -1;
         }
-
         for (size_t i = pivot + 1; i < tmp.numRows(); ++i) {
             if (i != r) {
                 T val = tmp(i, pivot);

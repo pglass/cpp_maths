@@ -1,4 +1,6 @@
 #include <sstream>
+#include <string>
+#include <vector>
 #include <UnitTest++.h>
 #include "../Int.hpp"
 #include "../common.hpp"
@@ -191,6 +193,7 @@ TEST(printInt) {
     // check that exceptions are thrown 
     CHECK_THROW(Int("abcdefghij"), std::invalid_argument);
     CHECK_THROW(Int("1234567a9"), std::invalid_argument);
+    CHECK_THROW(Int(""), std::invalid_argument);
 
     // check other constructors
     CHECK(testOutput(Int(9999, 2), "9999000000000000000000"));
@@ -268,6 +271,13 @@ TEST(addition) {
     CHECK(testAddition(Int("999999999999999999"),
                        Int("999999999999999999"),
                        Int("1999999999999999998")));
+    // check += is safe to use on a single instance
+    Int x("111111111222222222");
+    x += x;
+    CHECK(testOutput(x, "222222222444444444"));
+    x = Int("-111111111222222222");
+    x += x;
+    CHECK(testOutput(x, "-222222222444444444"));
 }
 
 TEST(subtraction) {
@@ -289,6 +299,13 @@ TEST(subtraction) {
     CHECK(testSubtraction(Int("1000000001"),
                           Int("999999999999999999"),
                           Int("-999999998999999998")));
+    // check -= is safe to use on a single instance
+    Int x("111111111222222222");
+    x -= x;
+    CHECK(testOutput(x, "0"));
+    x = Int("-111111111222222222");
+    x -= x;
+    CHECK(testOutput(x, "0"));
 }
 
 TEST(multiplication) {
@@ -304,6 +321,13 @@ TEST(multiplication) {
     CHECK(testMultiplication(Int("1234567891234"),
                              Int("123456789123456789123456789"),
                              Int("152415787806666675432666675280250887626")));
+    // check *= is safe to use with a single instance
+    Int x("111111111222222222");
+    x *= x;
+    CHECK(testOutput(x, "12345679037037036999999999950617284"));
+    x = Int("-111111111222222222");
+    x *= x;
+    CHECK(testOutput(x, "12345679037037036999999999950617284"));
 }
 
 TEST(division) {
@@ -323,6 +347,14 @@ TEST(division) {
     CHECK(testDivision(Int("152415787806666675432666675280250887626"),
                        Int("123456789123456789123456789"),
                        Int("1234567891234")));
+    // check /= is safe to use on a single instance
+    Int x("111111111222222222");
+    x /= x;
+    CHECK(testOutput(x, "1"));
+    x = Int("-111111111222222222");
+    x /= x;
+    CHECK(testOutput(x, "1"));
+
 }
 
 TEST(modulus) {
@@ -344,8 +376,17 @@ TEST(modulus) {
     CHECK(testModulus(Int("-987654321"), Int("-417"), Int(-246)));
 
     CHECK_THROW(testModulus(Int("1234"), Int("0"), Int(0)), divide_by_zero_error);
+
+    // check /= is safe to use on a single instance
+    Int x("111111111222222222");
+    x %= x;
+    CHECK(testOutput(x, "0"));
+    x = Int("-111111111222222222");
+    x %= x;
+    CHECK(testOutput(x, "0"));
 }
 
+// negative exponents are handled elsewhere, since the result must be a fraction or decimal    
 TEST(exponentiation) {
     CHECK(testExponentiation(Int(2), Int(0), Int(1)));
     CHECK(testExponentiation(Int(2), Int(1), Int(2)));
@@ -361,6 +402,15 @@ TEST(exponentiation) {
 
     CHECK(testExponentiation(Int("987"), Int("20"),
         Int("769738223842181441453473918342107866070875104572033095898801")));
+
+    // check ^= safe to use with single instances
+    Int x("123");
+    x ^= x;
+    CHECK(testOutput(x, 
+        std::string("11437436793461719009988029522806627674621807845185022977588797505")
+                  + "23695047856668964466065683652015421696499747277306288423453431965"
+                  + "81134895919942820874449837212099476648958359023796078549041949007"
+                  + "807220625356526926729664064846685758382803707100766740220839267"));
 }
 
 TEST(timesPowerTen) {
@@ -426,6 +476,46 @@ TEST(timesPowerTen) {
     CHECK(testTimesPowerTen(Int("2000000000000"),        -23, Int(0))); 
     CHECK(testTimesPowerTen(Int("20000000000000"),       -24, Int(0))); 
     CHECK(testTimesPowerTen(Int("200000000000000"),      -25, Int(0))); 
+}
+
+/* Note: The Int::read(istream&) method is already tested since 
+ * Int(string&) and the operator>> overload both call Int::read(istream&).
+ * This just checks some functionality concerning the operator>> overload.
+ */ 
+TEST(inStream) {
+    Int x;
+    std::stringstream ss;
+
+    // check operator>> is usable repeatedly on the same instance
+    const std::vector<std::string> testStrings = {
+        "5",
+        "-5",
+        "1234",
+        "-1234",
+        "1123456789",
+        "-1123456789",
+        "123456789123456789",
+        "-123456789123456789",
+    };
+    for (int i = 0; i < testStrings.size(); ++i) {
+        ss.str(testStrings[i]);
+        ss.clear();
+        ss >> x;
+        CHECK(testOutput(x, testStrings[i]));
+    }
+
+    // check that the fail bit is set on unparseable content
+    const std::vector<std::string> badStrings = {
+        "-",
+        "a",
+        "a1234",
+    };
+    for (int i = 0; i < badStrings.size(); ++i) {
+        ss.str(badStrings[i]);
+        ss.clear();
+        ss >> x;
+        CHECK(ss.fail());
+    }
 }
 
 int main() {

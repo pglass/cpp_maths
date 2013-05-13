@@ -1,6 +1,7 @@
-CXX=g++
-CXXFLAGS=-Wall -O2
-#CXXFLAGS= -g -O0
+#CXX=g++
+CXX=clang++
+CXXFLAGS=-std=c++11 -Wall -O2
+#CXXFLAGS=-std=c++11 -Wall -g -O0
 
 INCLUDE=/usr/local/include
 LIB=/usr/local/lib
@@ -48,4 +49,4 @@ all_demos: int_demo mat_demo vec_demo frac_demo
 	./frac_demo
 
 clean:
-	rm -rf *.o *.gch int_test int_demo mat_test mat_demo vec_test vec_demo frac_test frac_demo
+	rm -rf *.o *.gch *.gch-* int_test int_demo mat_test mat_demo vec_test vec_demo frac_test frac_demo

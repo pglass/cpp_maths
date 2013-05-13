@@ -20,7 +20,7 @@ This has been tested with g++ on Debian: `gcc version 4.4.5 (Debian 4.4.5-8). Te
 `Mat` is a two-dimensional templated matrix class. Operators are overloaded for matrix-matrix operations (`+`, `-`, `*`, `+=`, `-=`, `*=`), scalar-matrix operations (`*`, `/`, `*=`, `/=`), and comparison (`==`, `!=`). The following functions are provided as members of a `Mat<T> m`:
 
 * `trace()`, `determinant()`, and `inverse()`
-* `minor(i, j)` and `cofactor(i, j)` return the (i, j)-th minor or cofactor (signed minor), respectively
+* `first_minor(i, j)` and `cofactor(i, j)` return the (i, j)-th minor or cofactor (signed minor), respectively
 * `rref()` and `inplace_rref()` will find the reduced row echelon form
 * `m(i, j)` returns the (i, j)-th entry
 

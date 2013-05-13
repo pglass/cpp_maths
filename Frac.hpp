@@ -33,6 +33,7 @@ class Frac : public Number {
     static Frac from_double(double x, int precision = 15); 
     Frac reciprocal() { return Frac(bb, tt); }
     virtual ostream& print(ostream& out) const;
+    virtual istream& read(istream& in);
 
     friend bool operator == (const Frac& x, const Frac& y);
     friend bool operator != (const Frac& x, const Frac& y);
@@ -76,6 +77,10 @@ class Frac : public Number {
 ostream& Frac::print(ostream& out) const {
     out << "(" << tt << "/" << bb << ")";
     return out;
+}
+
+istream& Frac::read(istream& in) {
+    return in;
 }
 
 /* Parse a Frac from a double.
@@ -138,7 +143,7 @@ Frac::Frac(const string& x) {
         bb = Int(1);
         return;
     }
-    size_t j = x.find('/');
+    int j = x.find('/');
     if (j < 0) {
         tt = Int(x);
         bb = Int(1);

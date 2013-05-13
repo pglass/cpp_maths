@@ -126,7 +126,7 @@ TEST(matrixMinor) {
     Mat<double> b(4, 4, 2);
     for (size_t i = 0; i < a.numRows(); ++i)
         for (size_t  j = 0; j < a.numCols(); ++j)
-            CHECK(matrixFloatEquals(a.minor(i,j), b));
+            CHECK(matrixFloatEquals(a.first_minor(i,j), b));
     double c_vals[] = {
         9, 2, 3, 
         1, 7, 6,
@@ -148,12 +148,12 @@ TEST(matrixMinor) {
     Mat<double> d(d_vals, 2, 2);
     Mat<double> e(e_vals, 2, 2);
     Mat<double> f(f_vals, 2, 2);
-    CHECK(matrixFloatEquals(c.minor(0,0), d));
-    CHECK(matrixFloatEquals(c.minor(0,1), e));
-    CHECK(matrixFloatEquals(c.minor(0,2), f));
-    //CHECK(c.minor(0,0) == d);
-    //CHECK(c.minor(0,1) == e);
-    //CHECK(c.minor(0,2) == f);
+    CHECK(matrixFloatEquals(c.first_minor(0,0), d));
+    CHECK(matrixFloatEquals(c.first_minor(0,1), e));
+    CHECK(matrixFloatEquals(c.first_minor(0,2), f));
+    //CHECK(c.first_minor(0,0) == d);
+    //CHECK(c.first_minor(0,1) == e);
+    //CHECK(c.first_minor(0,2) == f);
 }
 
 TEST(matrixDeterminant) {

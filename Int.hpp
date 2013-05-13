@@ -7,21 +7,9 @@
 #include <limits>
 #include <string>
 #include <deque>
+#include <cstdint>
 #include "./numbers.hpp"
 #include "./common.hpp"
-
-/* parse_int - parse an int from a string
- *   This throws an invalid_argument exception if x contains anything other 
- *   than an int. Use while constructing an Int from a string.
- */
-unsigned int parse_int(const std::string& x) {
-    unsigned int val;
-    std::stringstream ss(x);
-    ss >> val;
-    if (ss.fail() or !ss.eof())
-        throw std::invalid_argument("Cannot parse int from '" + x + "'");
-    return val; 
-}
 
 /* Int - a (virtually) arbitrary precision integer
  *
@@ -50,12 +38,12 @@ unsigned int parse_int(const std::string& x) {
  */
 class Int : public Number {
   public:
-    static const int BIN_WIDTH = 9;
-    static const int BIN_LIMIT = 1000000000;
+    static const int32_t BIN_WIDTH = 9;
+    static const int32_t BIN_LIMIT = 1000000000;
 
     Int();
     Int(const Int& x, size_t shift);
-    Int(long x, size_t shift = 0);
+    Int(int64_t x, size_t shift = 0);
     explicit Int(const std::string& x);
 
     friend Int operator - (const Int& x);
@@ -81,15 +69,16 @@ class Int : public Number {
     friend bool operator == (const Int& x, const Int& y) { return x.cmp(y) == 0; }
 
     virtual std::ostream& print(std::ostream& out) const;
+    virtual std::istream& read(std::istream& in);
 
-    bool is_int(int x) const;
-    int cmp(const Int& y) const;
+    bool is_int(int32_t x) const;
+    int32_t cmp(const Int& y) const;
     inline bool is_odd() const { return bins[0] % 2 == 1; }
     inline bool is_negative() const { return negative; }
     inline void negate() { negative = is_int(0) ? false : !negative; }
-    void times_power_ten(int power);
+    void times_power_ten(int32_t power);
   private:
-    std::deque<unsigned int> bins;
+    std::deque<int32_t> bins;
     bool negative;
 
     /* All the following functions are helpers to the operator overloads.
@@ -101,30 +90,30 @@ class Int : public Number {
     void subtract(const Int& x);
     void divide(const Int& x);
     friend void multiply(const Int& x, const Int& y, Int& result);
-    friend void multiply_by_int(const Int& x, int y, Int& result);
-    friend void divide_by_int(const Int& x, int y, Int& result);
-    friend void quotient_and_remainder(const Int& y, const Int& x, int& q, Int& r);
-    friend void iter_quotient(const Int& y, const Int& x, int& q, Int& r, int step);
+    friend void multiply_by_int(const Int& x, int32_t y, Int& result);
+    friend void divide_by_int(const Int& x, int32_t y, Int& result);
+    friend void quotient_and_remainder(const Int& y, const Int& x, int32_t& q, Int& r);
+    friend void iter_quotient(const Int& y, const Int& x, int32_t& q, Int& r, int32_t step);
     friend void modulo(const Int& x, const Int& y, Int& result);
     friend void exponentiate(const Int& x, const Int& exp, Int& result);
 
-    void set_int(int x);
-    int cmp_bins(const Int& x) const;
+    void set_int(int32_t x);
+    int32_t cmp_bins(const Int& x) const;
 
     inline void shift(size_t amount) { bins.push_front(0); }
-    inline void set_bin_from_back(int i, int val) { bins[bins.size() - 1 - i] = val; }
-    inline unsigned int get_bin_from_back(int i) const { return bins[bins.size() - 1 - i]; }
+    inline void set_bin_from_back(int32_t i, int32_t val) { bins[bins.size() - 1 - i] = val; }
+    inline int32_t get_bin_from_back(int32_t i) const { return bins[bins.size() - 1 - i]; }
 };
 
 std::ostream& Int::print(std::ostream& out) const {
     if (negative)
         out << '-';
     size_t i = 0;
-    unsigned int x;
+    int32_t x;
     while (i < bins.size() and (x = get_bin_from_back(i)) == 0)
         ++i;
     if (i == bins.size()) {
-        out << (int) 0;
+        out << (int32_t) 0;
     } else {
         out << get_bin_from_back(i);    // don't pad the most significant bin
         ++i;
@@ -132,6 +121,95 @@ std::ostream& Int::print(std::ostream& out) const {
             out << std::setw(BIN_WIDTH) << std::setfill('0') << get_bin_from_back(i);
     }
 	return out;
+}
+
+/* parse_int - read an positive int from the stringstream
+ *   Made specifically for use with Int::read()
+ *   This consumes no more than max_digits characters from the stream
+ *      and only consumes digit characters [0-9].
+ * 
+ *   This throws an invalid_argument exception if x contains anything other 
+ *   than an int. Use while constructing an Int from a string.
+ */
+int32_t parse_int(std::stringstream& ss, int max_digits) {
+    std::stringstream s_num;
+    int i = 0;
+    while (i < max_digits && isdigit(ss.peek())) {
+        s_num << (char) ss.get();
+        ++i;
+    }
+    int32_t val;
+    s_num >> val;
+    if (s_num.fail() or !s_num.eof())
+        throw std::invalid_argument("Failed to parse int from '" + s_num.str() + "'");
+    return val; 
+}
+
+
+/* Read an Int from the given stream into this object
+ *   The Int is of the form: [-][0-9]+
+ *   This destroys the contents of this Int instance used
+ *
+ * Note:
+ *   This should not throw an exception. The call to parse_int is
+ *   setup in a way that should not trigger the exception.
+ */
+std::istream& Int::read(std::istream& in) {
+    // check whether the stream is in a good state
+    std::istream::sentry s(in, true);
+    if (!s)
+        return in;
+
+    if (in.peek() == '-') {
+        in.get();
+        if (isdigit(in.peek())) {
+            negative = true;
+        } else {
+            in.unget();
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+    } else {
+        if (isdigit(in.peek())) {
+            negative = false;
+        } else {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+    }
+
+    bins.clear(); 
+    
+    while (in.peek() == '0') {  // skip leading zeroes
+        in.get();
+    }
+
+    // read all digits; we need to know the number of digits 
+    std::stringstream digit_ss;
+    while (isdigit(in.peek()))
+        digit_ss << (char) in.get();
+
+    int num_digits = digit_ss.str().size();
+    int count = 0;
+    int k, n;
+    if (num_digits == 0) {  // number is zero
+        // in.get() sets the failbit on eof but we have not failed, so unset the failbit
+        // (It will be re-set on later calls to get() on the stream)
+        in.clear(in.rdstate() & ~std::ios::failbit);  // clear(flags) sets all the flags as given
+        set_int(0);
+        return in;
+    } else if ((k = num_digits % BIN_WIDTH) > 0) {  // last bin size <= BIN_WIDTH
+        n = parse_int(digit_ss, k);
+        bins.push_front(n);
+        count += k;
+    }
+    while (count < num_digits) {        // all other bin sizes == BIN_WIDTH 
+        n = parse_int(digit_ss, BIN_WIDTH);
+        bins.push_front(n);
+        count += BIN_WIDTH;
+    }
+
+    return in;
 }
 
 Int operator+(const Int& x, const Int& y) {
@@ -204,8 +282,9 @@ Int operator^(const Int& x, const Int& y) {
 
 void operator+=(Int& x, const Int& y) {
     if (x.negative and y.negative) {         // (-x) + (-y) --> -(x + y)
+        Int tmp = -y;   // needed if x and y same instance
         x.negate();
-        x += (-y);
+        x += tmp;
         x.negate();
     } else if (x.negative and !y.negative) { // (-x) + y --> -(x - y)
         x.negate();
@@ -214,14 +293,15 @@ void operator+=(Int& x, const Int& y) {
     } else if (!x.negative and y.negative) { // x + (-y) --> x - y
         x -= (-y);
     } else {
-        x.add(y);
+        x.add(Int(y));
     }
 }
 
 void operator-=(Int& x, const Int& y) {
     if (x.negative and y.negative) {         // -x - (-y) --> -(x - y)
+        Int tmp = -y;
         x.negate();
-        x -= (-y);
+        x -= tmp;
         x.negate();
     } else if (x.negative and !y.negative) { // -x - y --> -(x + y)
         x.negate();
@@ -249,7 +329,7 @@ void operator*=(Int& x, const Int& y) {
 }
 
 void operator/=(Int& x, const Int& y) {
-    x.divide(y);
+    x.divide(Int(y));  // copy y in case x and y are the same instance
 }
 
 void operator%=(Int& x, const Int& y) {
@@ -281,7 +361,7 @@ Int::Int() {
  *   That is, after construction, *this will have the value x * (BIN_LIMIT ^ shift).
  *   (This is used in multiplication and division)
  */
-Int::Int(long x, size_t shift) {
+Int::Int(int64_t x, size_t shift) {
     if (x < 0) {
         negative = true;
         x = -x;
@@ -299,7 +379,7 @@ Int::Int(long x, size_t shift) {
         x /= BIN_LIMIT;
     }
     if (x > 0)
-        bins.push_back((int) x);
+        bins.push_back((int32_t) x);
 }
 
 /* Construct from an Int and apply a shift.
@@ -316,54 +396,23 @@ Int::Int(const Int& x, size_t shift) {
 }
 
 /* Construct an Int from a std::string.
- *   The string can be of the format: [+-][0-9]+
+ *   The string can be of the format: [-][0-9]+
  *
  * This throws an invalid_argument exception when unable to convert any part 
  *   of x to an int (see parse_int)
  */
-Int::Int(const std::string& x) {
-    if (x.length() == 0) {
-        bins.push_back(0);
-        negative = false;
-        return;
-    }    
-
-    int i = 0;
-    negative = (x[i] == '-');
-    if (negative or x[i] == '+')
-        ++i;
-
-    // skip leading zeroes
-    int k = i;
-    while (k < (int) x.size() and x[k] == '0')
-        ++k;
-    if (k > i and k < (int) x.size())
-        i = k;
-    else if (k > i) {
-        bins.push_back(0);
-        negative = false;
-        return;
+Int::Int(const std::string& x) : negative(false) {
+    std::stringstream ss(x);
+    this->read(ss);
+    if (ss.fail() or !ss.eof()) {
+        set_int(0);
+        throw std::invalid_argument("Failed to parse Int from '" + x + "'");
     }
-  
-    // now i is the offset after skipping '-' and leading zeroes.
-    if (((int) x.size()) - i <= BIN_WIDTH) {
-        bins.push_back(parse_int(x.substr(i, x.length() - i)));
-    } else {
-        // j is the index in x of the digit starting the first full bin.
-        int j = x.size() - ((x.length() - i) / BIN_WIDTH) * BIN_WIDTH;
-        for (int k = x.size() - BIN_WIDTH; k >= j; k -= BIN_WIDTH)
-            bins.push_back(parse_int(x.substr(k, BIN_WIDTH)));
-        if (j > (int) i)
-            bins.push_back(parse_int(x.substr(i, j - i)));
-    } 
-
-    if (is_int(0))
-        negative = false;
 }
 
 /* Int::is_int - return true if the value of *this is equal to x */
-bool Int::is_int(int x) const {
-    unsigned int val = abs(x);
+bool Int::is_int(int32_t x) const {
+    int32_t val = abs(x);
     size_t i = 0;
     for (; i < bins.size() - 1; ++i)
         if (bins[i])
@@ -376,7 +425,7 @@ bool Int::is_int(int x) const {
 }
 
 /* Int::set_int - set the value of *this to val with correct sign */
-void Int::set_int(int val) {
+void Int::set_int(int32_t val) {
     bins.clear();
     bins.push_back(abs(val));
     negative = (val < 0);
@@ -387,11 +436,11 @@ void Int::set_int(int val) {
  *          1 if *this > x,
  *          0 if equal
  */
-int Int::cmp_bins(const Int& x) const {
-    int tmp;
-    int offset = x.bins.size() - bins.size();
+int32_t Int::cmp_bins(const Int& x) const {
+    int32_t tmp;
+    int32_t offset = x.bins.size() - bins.size();
     if (offset > 0) {  // x has more bins
-        for (int i = 0; i < offset; ++i)
+        for (int32_t i = 0; i < offset; ++i)
             if (x.get_bin_from_back(i) != 0)
                 return -1;
     } else if (offset < 0) {
@@ -410,8 +459,8 @@ int Int::cmp_bins(const Int& x) const {
  *          1 if *this > x,
  *          0 if equal
  */
-int Int::cmp(const Int& x) const {
-    int bin_cmp = cmp_bins(x);
+int32_t Int::cmp(const Int& x) const {
+    int32_t bin_cmp = cmp_bins(x);
     if (bin_cmp == 0 and is_int(0)) {
         return 0;
     } else {
@@ -430,9 +479,8 @@ int Int::cmp(const Int& x) const {
 void Int::add(const Int& x) {
     if (x.bins.size() > bins.size())
         bins.resize(x.bins.size(), 0);
-
-    int carry = 0;
-    unsigned int sum, val;
+    int32_t carry = 0;
+    int32_t sum, val;
     size_t i = 0;
     for (; i < x.bins.size(); ++i) {
         sum = bins[i] + x.bins[i] + carry;
@@ -440,7 +488,6 @@ void Int::add(const Int& x) {
         carry = max(0, sum / BIN_LIMIT);
         bins[i] = val;
     }
-
     while (carry != 0 and i < bins.size()) {
         sum = bins[i] + carry;
         val = sum % BIN_LIMIT;
@@ -448,7 +495,6 @@ void Int::add(const Int& x) {
         bins[i] = val;
         ++i;
     }
-
     if (carry != 0)
         bins.push_back(carry);
 }
@@ -457,8 +503,8 @@ void Int::add(const Int& x) {
  *   This ignores signs and assumes that *this is larger than x in absolute value.
  */
 void Int::subtract(const Int& x) {
-    int diff;
-    int borrow = 0;
+    int32_t diff;
+    int32_t borrow = 0;
     size_t i = 0;
     for (; i < x.bins.size(); ++i) {
         diff = bins[i] - borrow - x.bins[i];
@@ -470,7 +516,6 @@ void Int::subtract(const Int& x) {
         }
         bins[i] = diff;
     }
-
     while (i < bins.size() and borrow != 0) {
         diff = bins[i] - borrow;
         if (diff < 0) {
@@ -484,10 +529,10 @@ void Int::subtract(const Int& x) {
     }
 }
 
-void Int::times_power_ten(int power) {
-    int pow = power;
+void Int::times_power_ten(int32_t power) {
+    int32_t pow = power;
     if (pow > 0) {
-        for (int i = 0; i < pow % BIN_WIDTH; ++i)
+        for (int32_t i = 0; i < pow % BIN_WIDTH; ++i)
             (*this) *= 10;
         while (pow >= BIN_WIDTH) {
             bins.push_front(0);
@@ -501,21 +546,21 @@ void Int::times_power_ten(int power) {
         }
         if (bins.empty()) {
             set_int(0);
-            return;
+        } else {
+            for (int32_t i = 0; i < pow % BIN_WIDTH; ++i)
+                (*this) /= 10;
         }
-        for (int i = 0; i < pow % BIN_WIDTH; ++i)
-            (*this) /= 10;
     }
 }
 
 /* multiply_by_int - multiply an Int by an int
  *   This ignores signs. Pass in abs(y) and compute the sign afterwards.
  */
-void multiply_by_int(const Int& x, int y, Int& result) {
-    long prod;
+void multiply_by_int(const Int& x, int32_t y, Int& result) {
+    int64_t prod;
     result = Int(0);
     for (size_t i = 0; i < x.bins.size(); ++i) {
-        prod = ((long) y) * ((long) x.bins[i]);
+        prod = ((int64_t) y) * ((int64_t) x.bins[i]);
         result += Int(prod, i);
     }
 }
@@ -535,10 +580,10 @@ void multiply(const Int& x, const Int& y, Int& result) {
 /* divide_by_int - divide and Int by an int
  *   This ignores signs. Pass in abs(y) and compute the sign aftwerwards.
  */
-void divide_by_int(const Int& x, int y, Int& result) {
+void divide_by_int(const Int& x, int32_t y, Int& result) {
     result.bins.clear();
-    long q, d;
-    long r = 0;
+    int64_t q, d;
+    int64_t r = 0;
     for (size_t i = 0; i < x.bins.size(); ++i) {
         d =  (r * Int::BIN_LIMIT) + x.get_bin_from_back(i);
         q = d / y;
@@ -550,18 +595,18 @@ void divide_by_int(const Int& x, int y, Int& result) {
 }
 
 /* iter_quotient - helper function for quotient_and_remainder
- *   This adds step to q and stop at the largest q such that x * q <= y.
- *   This assumes we'll have x and y so that 0 <= q < Int::BIN_LIMIT always.
+ *   This adds step to q and stops at the largest q such that x * q <= y.
+ *   This assumes we'll have x and y so that 0 <= q < Int::BIN_LIMIT.
  *
  *   We know y >= x, and we want to find the quotient q and remainder r 
  *   so that q * x + r = y. One way of doing so is to start with q = 0, and
  *   compute r = y - q*x for all q >= 0 until we find the an r less than x. 
- *   Obviously, this isn't efficient. This function allows us to iterate q by 
- *   various step sizes repeatedly, so we can do essentially a binary search 
- *   through possible values of q instead of a linear search.
+ *   This function allows us to iterate q by various step sizes repeatedly, 
+ *   so we can do essentially a binary search through possible values of q 
+ *   instead of a linear search.
  */
-inline void iter_quotient(const Int& y, const Int& x, int& q, Int& r, int step) {
-    int b = q;
+inline void iter_quotient(const Int& y, const Int& x, int32_t& q, Int& r, int32_t step) {
+    int32_t b = q;
     Int prod;
     do {
         q = b;
@@ -575,8 +620,8 @@ inline void iter_quotient(const Int& y, const Int& x, int& q, Int& r, int step) 
  *   This assumes we'll have y and x so that x <= y < BIN_LIMIT * x,
  *   so we know after returning that q >= 1.
  */
-void quotient_and_remainder(const Int& y, const Int& x, int& q, Int& r) {
-    int step = Int::BIN_LIMIT;
+void quotient_and_remainder(const Int& y, const Int& x, int32_t& q, Int& r) {
+    int32_t step = Int::BIN_LIMIT;
     q = 0;
     while (step > 1) {
         step /= 2;
@@ -598,7 +643,7 @@ void Int::divide(const Int& x) {
     }
 
     Int r, current;
-    int q;
+    int32_t q;
     size_t i = 0;
     for (; i < bins.size(); ++i) {
         current.bins[0] = get_bin_from_back(i);

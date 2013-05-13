@@ -2,18 +2,30 @@
 #define _COMMON_HPP_
 #include <iostream>
 #include <sstream>
+#include <cstdint>
 
 const double EPSILON = .00001;
 
 template <typename T>
-inline T abs(const T& a) { return (a < 0) ? -a : a; }
-
-int inline float_equals(double x, double y) {
-    return abs(x - y) < EPSILON;
+inline T abs(const T& a) {
+    return (a < 0) ? -a : a;
 }
 
-inline int max(int a, int b) { return (a > b) ? a : b; }
-inline int cmp_ints(int x, int y) { return (x < y) ? -1 : ((x > y) ? 1 : 0); }
+inline int float_equals(double x, double y) {
+    return abs(x - y) < EPSILON; 
+}
+
+inline bool isdigit(char c) {
+    return '0' <= c && c <= '9';
+}
+
+inline int cmp_ints(int32_t x, int32_t y) {
+    return (x < y) ? -1 : ((x > y) ? 1 : 0); 
+}
+
+inline int max(int32_t a, int32_t b) {
+    return (a > b) ? a : b;
+}
 
 int float_cmp(double x, double y) {
     double d = y - x;

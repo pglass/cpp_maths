@@ -13,8 +13,15 @@ struct divide_by_zero_error : public std::domain_error {
  */
 struct Number { 
     virtual std::ostream& print(std::ostream& out) const = 0; 
+    virtual std::istream& read(std::istream& in) = 0; 
 };
 
-std::ostream& operator<<(std::ostream& out, const Number& x) { return x.print(out); }
+std::ostream& operator<<(std::ostream& out, const Number& x) { 
+    return x.print(out); 
+}
+
+std::istream& operator>>(std::istream& in, Number& x) {
+    return x.read(in);
+}
 
 #endif
