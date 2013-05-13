@@ -1,6 +1,6 @@
 Overview
 ========
-This is a math library in C++ focused on symbolic over numerical computation. I work on it as I have time away from school. That is, I still intend to work on it even if the last commit is weeks or months ago.
+This is a math library in C++11 focused on symbolic over numerical computation. I work on it as I have time away from school. That is, I still intend to work on it even if the last commit is weeks or months ago.
 
 The following headers are provided. 
 
