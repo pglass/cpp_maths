@@ -1,6 +1,6 @@
 Overview
 ========
-This is a math library in C++11 focused on symbolic over numerical computation. I work on it as I have time away from school. That is, I still intend to work on it even if the last commit is weeks or months ago.
+This is a math library in C++ focused on symbolic over numerical computation. I work on it as I have time away from school. That is, I still intend to work on it even if the last commit is weeks or months ago.
 
 The following headers are provided. 
 
@@ -8,10 +8,21 @@ The following headers are provided.
     #include "./Frac.hpp"  // fraction class Frac
     #include "./Mat.hpp"   // matrix class Mat
     #include "./Vec.hpp"   // mathematical vector class Vec
+    
+Usage of all the classes can be found in the corresponding files in the `demo` folder.
 
-Usage of all the classes can be found in the corresponding files in the `demo` folder. These should compile with `make int_demo`, `make vec_demo`, and so forth. 
+## Building ##
 
-This is tested on Debian 7 with gcc (`g++ (Debian 4.7.2-5) 4.7.2`) and clang (`clang version 3.2`, compiled from source). Tests should compile and run with `make int_test`, `make frac_test`, etc.
+You will need to have CMake installed (version 2.6 or greater):
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+This will build all of the demo and test executables. You can run tests with:
+
+    make test
 
 ### Int.hpp ###
 `Int` is an arbitrary precision integer implemented as a list of ints. For example, 123456789234567890345678901 is represented as {345678901, 234567890, 123456789}. Then all operations are done int-by-int which is considerably faster than going digit-by-digit. The standard arithmetic operators (`+`, `-`, `*`, `/`, `%`, `^` `+=`, `-=`, `*=`, `/=`, `%=`, `^=`) and relational operators (`<`, `>`, `>=`, `<=`, `!=`, `==`) are overloaded. Note that `^` is exponentiation and not a bitwise xor. An `Int` can be constructed from a string or a long: `Int("-1234")` or `Int(-1234)`. Int also works with streams (`<<` and `>>`).
