@@ -313,7 +313,7 @@ Int::Int(const std::string& x) : negative(false) {
 }
 
 /* Int::is_int - return true if the value of *this is equal to x */
-bool Int::is_int(int32_t x) const {
+bool Int::equals_int32(int32_t x) const {
     int32_t val = abs(x);
     size_t i = 0;
     for (; i < bins.size() - 1; ++i)
@@ -363,7 +363,7 @@ int32_t Int::cmp_bins(const Int& x) const {
  */
 int32_t Int::cmp(const Int& x) const {
     int32_t bin_cmp = cmp_bins(x);
-    if (bin_cmp == 0 && is_int(0)) {
+    if (bin_cmp == 0 && equals_int32(0)) {
         return 0;
     } else {
         if (negative && x.negative)
@@ -537,7 +537,7 @@ void quotient_and_remainder(const Int& y, const Int& x, int32_t& q, Int& r) {
  *   when x is zero.
  */
 void Int::divide(const Int& x) {
-    if (x.is_int(0)) {
+    if (x.equals_int32(0)) {
         throw divide_by_zero_error();
     } else if (cmp_bins(x) < 0) {  // division by a larger number truncates
         set_int(0);
@@ -578,7 +578,7 @@ void modulo(const Int& x, const Int& y, Int& result) {
     Int q = a / b;
     result = a - q * b;
 
-    if (result.is_int(0))
+    if (result.equals_int32(0))
         return;
     if (x.negative && y.negative)
         result.negate();
@@ -598,9 +598,9 @@ void modulo(const Int& x, const Int& y, Int& result) {
  *   return 1/x^(abs(y)) (which is zero for any x > 1 and abs(y)) > 1)
  */
 void exponentiate(const Int& x, const Int& y, Int& result) {
-    if (y.is_int(0)) {
+    if (y.equals_int32(0)) {
         result.set_int(1);
-    } else if (y.is_int(1)) {
+    } else if (y.equals_int32(1)) {
         result = x;
     } else if (y.is_odd()) {
         Int a;

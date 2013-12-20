@@ -62,7 +62,7 @@ Int Frac::nochecks_gcd(const Int& x, const Int& y) {
     Int a = x;
     Int b = y;
     Int r;
-    while (!b.is_int(0)) {
+    while (!b.equals_int32(0)) {
         r = a % b;
         a = b;
         b = r;
@@ -87,7 +87,7 @@ Frac::Frac(const string& x) {
         tt = Int(x.substr(0, j));
         bb = Int(x.substr(j + 1));
     }
-    if (bb.is_int(0))
+    if (bb.equals_int32(0))
         throw invalid_argument("poorly formatted input string: " + x);
     normalize();
 }

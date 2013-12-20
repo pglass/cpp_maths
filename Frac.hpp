@@ -23,7 +23,7 @@ class Frac {
     explicit Frac(const Int& x) : tt(x), bb(1) { }
     explicit Frac(const string& x);
     Frac(const Int& top, const Int& bottom) : tt(top), bb(bottom) { 
-        if (bb.is_int(0))
+        if (bb.equals_int32(0))
             throw divide_by_zero_error();
         normalize();
     }
