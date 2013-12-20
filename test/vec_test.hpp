@@ -15,6 +15,7 @@ const double DVALS[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 TEST(constructionAndOutput) {
     CHECK(testOutput(Vec<int>(0), "()"));
     CHECK(testOutput(Vec<int>(5), "(0, 0, 0, 0, 0)"));
+    /* second arg is the length of the array */
     CHECK(testOutput(Vec<int>(IVALS, 0), "()"));
     CHECK(testOutput(Vec<int>(IVALS, 1), "(1)"));
     CHECK(testOutput(Vec<int>(IVALS, 2), "(1, 2)"));
@@ -24,7 +25,7 @@ TEST(constructionAndOutput) {
     CHECK(testOutput(Vec<int>::constantVec(4, 3), "(3, 3, 3, 3)"));
     CHECK(testOutput(Vec<int>::constantVec(4, 3.5), "(3, 3, 3, 3)"));
 
-    /* ensure we can construct from an array of a convertible type */
+    /* ensure we can construct from an array of an implicitly convertible type */
     CHECK(testOutput(Vec<double>(IVALS, 0), "()"));
     CHECK(testOutput(Vec<double>(IVALS, 1), "(1)"));
     CHECK(testOutput(Vec<double>(IVALS, 2), "(1, 2)"));
@@ -128,7 +129,7 @@ TEST(dotProduct) {
 
 TEST(crossProduct) {
     Vec<int> v(IVALS, 3);                           // (1, 2, 3)
-    Vec<int> w = v + Vec<int>::constantVec(3, 1);  // (2, 3, 4)
+    Vec<int> w = v + Vec<int>::constantVec(3, 1);   // (2, 3, 4)
     int x_vals[] = {-1, 2, -1};
     Vec<int> x(x_vals, 3);
     Vec<int> z = Vec<int>::constantVec(4, 4);
@@ -175,10 +176,6 @@ TEST(tripleProducts) {
 
    CHECK(Vec<int>::scalar_triple_product(x, y, z) == 111);
    CHECK(Vec<int>::vector_triple_product(x, y, z) == vtp);
-}
-
-int main() {
-    UnitTest::RunAllTests();
 }
 
 } // namespace VecTest

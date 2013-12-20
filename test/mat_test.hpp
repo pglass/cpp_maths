@@ -328,8 +328,4 @@ TEST(matrixTrace) {
     CHECK(z.trace() == 9);
 }
 
-int main(int argc, char* argv[]) {
-    return UnitTest::RunAllTests();
-}
-
 } // namespace MatTest

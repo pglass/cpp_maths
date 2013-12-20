@@ -380,7 +380,7 @@ T Mat<T>::determinant() {
                     goto end;
             }
         }
-        if (i != r) {
+        if (i != r) {  /* don't adjust the factor if don't need to swap */
             tmp.swap_rows(i, r);
             factor *= -1;
         }
@@ -456,14 +456,14 @@ template <typename T>
 Mat<T> Mat<T>::inverse() {
     if (rows != cols)
         throw std::domain_error("cannot invert a non-square matrix");
-    // (P | I) row reduces to (I | Q) where Q is the inverse of P
+    /* (P | I) row reduces to (I | Q) where Q is the inverse of P */
     Mat<T> identity = Mat<T>::identityMatrix(rows);
     Mat<T> r = Mat<T>::augmentedMatrix(*this, identity);
     Mat<T> result(rows, cols);
     r.inplace_rref();
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
-            // invertible only if row reduction puts the identity on the left
+            /* invertible only if row reduction puts the identity on the left */
             if (r(i, j) != identity(i, j))
                 throw std::domain_error("matrix is singular");
             result(i, j) = r(i, j + rows);

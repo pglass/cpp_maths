@@ -162,8 +162,4 @@ TEST(exponentiation) {
     CHECK(x == Frac(27, 8));
 }
 
-int main() {
-    UnitTest::RunAllTests();
-}
-
 } // namespace FracTest

@@ -524,8 +524,4 @@ TEST(inStream) {
     }
 }
 
-int main() {
-	return UnitTest::RunAllTests();
-}
-
 } // namespace IntTest
