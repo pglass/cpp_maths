@@ -98,7 +98,7 @@ std::istream& Int::read(std::istream& in) {
         // in.get() sets the failbit on eof but we have not failed, so unset the failbit
         // (It will be re-set on later calls to get() on the stream)
         in.clear(in.rdstate() & ~std::ios::failbit);  // clear(flags) sets all the flags as given
-        set_int(0);
+        set_value(0);
         return in;
     } else if ((k = num_digits % BIN_WIDTH) > 0) {  // last bin size <= BIN_WIDTH
         n = parse_int(digit_ss, k);
@@ -307,7 +307,7 @@ Int::Int(const std::string& x) : negative(false) {
     std::stringstream ss(x);
     this->read(ss);
     if (ss.fail() or !ss.eof()) {
-        set_int(0);
+        set_value(0);
         throw std::invalid_argument("Failed to parse Int from '" + x + "'");
     }
 }
@@ -327,7 +327,7 @@ bool Int::equals_int32(int32_t x) const {
 }
 
 /* Int::set_int - set the value of *this to val with correct sign */
-void Int::set_int(int32_t val) {
+void Int::set_value(int32_t val) {
     bins.clear();
     bins.push_back(abs(val));
     negative = (val < 0);
@@ -447,7 +447,7 @@ void Int::times_power_ten(int32_t power) {
             pow -= BIN_WIDTH;
         }
         if (bins.empty()) {
-            set_int(0);
+            set_value(0);
         } else {
             for (int32_t i = 0; i < pow % BIN_WIDTH; ++i)
                 (*this) /= 10;
@@ -460,7 +460,7 @@ void Int::times_power_ten(int32_t power) {
  */
 void multiply_by_int(const Int& x, int32_t y, Int& result) {
     int64_t prod;
-    result = Int(0);
+    result.set_value(0);
     for (size_t i = 0; i < x.bins.size(); ++i) {
         prod = ((int64_t) y) * ((int64_t) x.bins[i]);
         result += Int(prod, i);
@@ -472,7 +472,7 @@ void multiply_by_int(const Int& x, int32_t y, Int& result) {
  */
 void multiply(const Int& x, const Int& y, Int& result) {
     Int b;
-    result = Int(0);
+    result.set_value(0);
     for (size_t i = 0; i < y.bins.size(); ++i) {
         multiply_by_int(x, y.bins[i], b);
         result += Int(b, i);
@@ -507,7 +507,7 @@ void divide_by_int(const Int& x, int32_t y, Int& result) {
  *   so we can do essentially a binary search through possible values of q
  *   instead of a linear search.
  */
-inline void iter_quotient(const Int& y, const Int& x, int32_t& q, Int& r, int32_t step) {
+void iter_quotient(const Int& y, const Int& x, int32_t& q, Int& r, int32_t step) {
     int32_t b = q;
     Int prod;
     do {
@@ -540,7 +540,7 @@ void Int::divide(const Int& x) {
     if (x.equals_int32(0)) {
         throw divide_by_zero_error();
     } else if (cmp_bins(x) < 0) {  // division by a larger number truncates
-        set_int(0);
+        set_value(0);
         return;
     }
 
@@ -599,7 +599,7 @@ void modulo(const Int& x, const Int& y, Int& result) {
  */
 void exponentiate(const Int& x, const Int& y, Int& result) {
     if (y.equals_int32(0)) {
-        result.set_int(1);
+        result.set_value(1);
     } else if (y.equals_int32(1)) {
         result = x;
     } else if (y.is_odd()) {
