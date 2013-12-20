@@ -13,7 +13,7 @@ std::ostream& Int::print(std::ostream& out) const {
         out << '-';
     size_t i = 0;
     int32_t x;
-    while (i < bins.size() and (x = get_bin_from_back(i)) == 0)
+    while (i < bins.size() && (x = get_bin_from_back(i)) == 0)
         ++i;
     if (i == bins.size()) {
         out << (int32_t) 0;
@@ -115,11 +115,11 @@ std::istream& Int::read(std::istream& in) {
 }
 
 Int operator+(const Int& x, const Int& y) {
-    if (x.negative and y.negative)        // (-x) + (-y) --> -(x + y)
+    if (x.negative && y.negative)        // (-x) + (-y) --> -(x + y)
         return -(-x + (-y));
-    else if (x.negative and !y.negative)  // (-x) + y --> -(x - y)
+    else if (x.negative && !y.negative)  // (-x) + y --> -(x - y)
         return -(-x - y);
-    else if (!x.negative and y.negative)  // x + (-y) --> x - y
+    else if (!x.negative && y.negative)  // x + (-y) --> x - y
         return x - (-y);
 
     if (x.bins.size() > y.bins.size()) {
@@ -134,11 +134,11 @@ Int operator+(const Int& x, const Int& y) {
 }
 
 Int operator-(const Int& x, const Int& y) {
-    if (x.negative and y.negative)        // -x - (-y) --> -(x - y)
+    if (x.negative && y.negative)        // -x - (-y) --> -(x - y)
         return -(-x - (-y));
-    else if (x.negative and !y.negative)  // -x - y --> -(x + y)
+    else if (x.negative && !y.negative)  // -x - y --> -(x + y)
         return -(-x + y);
-    else if (!x.negative and y.negative)  // x - (-y) --> x + y
+    else if (!x.negative && y.negative)  // x - (-y) --> x + y
         return x + (-y);
 
     if (x > y) {
@@ -182,68 +182,68 @@ Int operator^(const Int& x, const Int& y) {
     return r;
 }
 
-void operator+=(Int& x, const Int& y) {
-    if (x.negative and y.negative) {         // (-x) + (-y) --> -(x + y)
-        Int tmp = -y;   // needed if x and y same instance
-        x.negate();
-        x += tmp;
-        x.negate();
-    } else if (x.negative and !y.negative) { // (-x) + y --> -(x - y)
-        x.negate();
-        x -= y;
-        x.negate();
-    } else if (!x.negative and y.negative) { // x + (-y) --> x - y
-        x -= (-y);
+void Int::operator+=(const Int& other) {
+    if (this->negative && other.negative) {         // (-x) + (-y) --> -(x + y)
+        Int tmp = -other;   // needed if x and y same instance
+        this->negate();
+        (*this) += tmp;
+        this->negate();
+    } else if (this->negative && !other.negative) { // (-x) + y --> -(x - y)
+        this->negate();
+        (*this) -= other;
+        this->negate();
+    } else if (!this->negative && other.negative) { // x + (-y) --> x - y
+        (*this) -= (-other);
     } else {
-        x.add(Int(y));
+        this->add(Int(other));  // copy in case same instance
     }
 }
 
-void operator-=(Int& x, const Int& y) {
-    if (x.negative and y.negative) {         // -x - (-y) --> -(x - y)
-        Int tmp = -y;
-        x.negate();
-        x -= tmp;
-        x.negate();
-    } else if (x.negative and !y.negative) { // -x - y --> -(x + y)
-        x.negate();
-        x += y;
-        x.negate();
-    } else if (!x.negative and y.negative) { // x - (-y) --> x + y
-        x += (-y);
+void Int::operator-=(const Int& other) {
+    if (this->negative && other.negative) {         // -x - (-y) --> -(x - y)
+        Int tmp = -other;
+        this->negate();
+        (*this) -= tmp;
+        this->negate();
+    } else if (this->negative && !other.negative) { // -x - y --> -(x + y)
+        this->negate();
+        (*this) += other;
+        this->negate();
+    } else if (!this->negative && other.negative) { // x - (-y) --> x + y
+        (*this) += (-other);
     } else {
-        if (x > y) {
-            x.subtract(y);
+        if (*this > other) {
+            this->subtract(other);
         } else {
-            Int r(y);
-            r.subtract(x);
+            Int r(other);
+            r.subtract(*this);
             r.negate();
-            return std::swap(x, r);
+            return std::swap(*this, r);
         }
     }
 }
 
-void operator*=(Int& x, const Int& y) {
+void Int::operator*=(const Int& other) {
     Int r;
-    multiply(x, y, r);
-    r.negative = (x.negative != y.negative);
-    std::swap(x, r);
+    multiply(*this, other, r);
+    r.negative = (this->negative != other.negative);
+    std::swap(*this, r);
 }
 
-void operator/=(Int& x, const Int& y) {
-    x.divide(Int(y));  // copy y in case x and y are the same instance
+void Int::operator/=(const Int& other) {
+    this->divide(Int(other));  // copy y in case x and y are the same instance
 }
 
-void operator%=(Int& x, const Int& y) {
+void Int::operator%=(const Int& other) {
     Int r;
-    modulo(x, y, r);
-    std::swap(x, r);
+    modulo(*this, other, r);
+    std::swap(*this, r);
 }
 
-void operator^=(Int& x, const Int& y) {
+void Int::operator^=(const Int& other) {
     Int r;
-    exponentiate(x, y, r);
-    std::swap(x, r);
+    exponentiate(*this, other, r);
+    std::swap(*this, r);
 }
 
 Int operator-(const Int& x) {
@@ -319,9 +319,9 @@ bool Int::is_int(int32_t x) const {
     for (; i < bins.size() - 1; ++i)
         if (bins[i])
             return false;
-    if (bins[i] == val and negative == (x < 0))
+    if (bins[i] == val && negative == (x < 0))
         return true;
-    else if (bins[i] == val and val == 0)
+    else if (bins[i] == val && val == 0)
         return true;
     return false;
 }
@@ -363,12 +363,12 @@ int32_t Int::cmp_bins(const Int& x) const {
  */
 int32_t Int::cmp(const Int& x) const {
     int32_t bin_cmp = cmp_bins(x);
-    if (bin_cmp == 0 and is_int(0)) {
+    if (bin_cmp == 0 && is_int(0)) {
         return 0;
     } else {
-        if (negative and x.negative)
+        if (negative && x.negative)
             return -bin_cmp;
-        else if (!negative and !x.negative)
+        else if (!negative && !x.negative)
             return bin_cmp;
         else if (negative)
             return -1;
@@ -390,7 +390,7 @@ void Int::add(const Int& x) {
         carry = max(0, sum / BIN_LIMIT);
         bins[i] = val;
     }
-    while (carry != 0 and i < bins.size()) {
+    while (carry != 0 && i < bins.size()) {
         sum = bins[i] + carry;
         val = sum % BIN_LIMIT;
         carry = max(0, sum / BIN_LIMIT);
@@ -418,7 +418,7 @@ void Int::subtract(const Int& x) {
         }
         bins[i] = diff;
     }
-    while (i < bins.size() and borrow != 0) {
+    while (i < bins.size() && borrow != 0) {
         diff = bins[i] - borrow;
         if (diff < 0) {
             borrow = 1;
@@ -442,7 +442,7 @@ void Int::times_power_ten(int32_t power) {
         }
     } else if (pow < 0) {
         pow = -pow;
-        while (pow >= BIN_WIDTH and !bins.empty()) {
+        while (pow >= BIN_WIDTH && !bins.empty()) {
             bins.pop_front();
             pow -= BIN_WIDTH;
         }
@@ -515,7 +515,7 @@ inline void iter_quotient(const Int& y, const Int& x, int32_t& q, Int& r, int32_
         b += step;
         multiply_by_int(x, b, prod);
         r = y - prod;
-    } while (!r.negative and x.cmp_bins(r) <= 0);
+    } while (!r.negative && x.cmp_bins(r) <= 0);
 }
 
 /* quotient_and_remainder - find q and r so that q * x + r = y.
@@ -580,11 +580,11 @@ void modulo(const Int& x, const Int& y, Int& result) {
 
     if (result.is_int(0))
         return;
-    if (x.negative and y.negative)
+    if (x.negative && y.negative)
         result.negate();
-    else if (!x.negative and y.negative)
+    else if (!x.negative && y.negative)
         result += y;
-    else if (x.negative and !y.negative)
+    else if (x.negative && !y.negative)
         result = y - result;
 }
 

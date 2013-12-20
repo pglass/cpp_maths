@@ -52,19 +52,13 @@ class Int {
     friend Int operator % (const Int& x, const Int& y);
     friend Int operator ^ (const Int& x, const Int& y);
 
-    friend void operator += (Int& x, const Int& y);
-    friend void operator -= (Int& x, const Int& y);
-    friend void operator *= (Int& x, const Int& y);
-    friend void operator /= (Int& x, const Int& y);
-    friend void operator %= (Int& x, const Int& y);
-    friend void operator ^= (Int& x, const Int& y);
+    void operator += (const Int& y);
+    void operator -= (const Int& y);
+    void operator *= (const Int& y);
+    void operator /= (const Int& y);
+    void operator %= (const Int& y);
+    void operator ^= (const Int& y);
 
-//    friend bool operator < (const Int& x, const Int& y) { return x.cmp(y) < 0; }
-//    friend bool operator > (const Int& x, const Int& y) { return x.cmp(y) > 0; }
-//    friend bool operator >= (const Int& x, const Int& y) { return x.cmp(y) >= 0; }
-//    friend bool operator <= (const Int& x, const Int& y) { return x.cmp(y) <= 0; }
-//    friend bool operator != (const Int& x, const Int& y) { return x.cmp(y) != 0; }
-//    friend bool operator == (const Int& x, const Int& y) { return x.cmp(y) == 0; }
     inline bool operator < (const Int& other) const { return cmp(other) < 0; }
     inline bool operator > (const Int& other) const { return cmp(other) > 0; }
     inline bool operator <= (const Int& other) const { return cmp(other) <= 0; }

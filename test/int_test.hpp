@@ -231,8 +231,8 @@ TEST(lessThan) {
 }
 
 TEST(booleanOperators) {
-    for (int i = -9; i < 9; ++i) {
-        for (int j = -9; j < 9; ++j) {
+    for (int32_t i = -9; i < 9; ++i) {
+        for (int32_t j = -9; j < 9; ++j) {
             Int a(i);
             Int b(j);
             CHECK((a < b) == (i < j));
