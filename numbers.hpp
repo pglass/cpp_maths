@@ -1,5 +1,5 @@
-#ifndef _NUMBERS_H_
-#define _NUMBERS_H_
+#ifndef _NUMBERS_HPP_
+#define _NUMBERS_HPP_
 #include <stdexcept>
 #include <iostream>
 #include <string>
@@ -14,14 +14,8 @@ struct divide_by_zero_error : public std::domain_error {
 struct Number { 
     virtual std::ostream& print(std::ostream& out) const = 0; 
     virtual std::istream& read(std::istream& in) = 0; 
+    friend std::ostream& operator<<(std::ostream& out, const Number& x);
+    friend std::istream& operator>>(std::istream& in, Number& x);
 };
-
-std::ostream& operator<<(std::ostream& out, const Number& x) { 
-    return x.print(out); 
-}
-
-std::istream& operator>>(std::istream& in, Number& x) {
-    return x.read(in);
-}
 
 #endif

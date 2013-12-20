@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <UnitTest++.h>
+#include <cassert>
 #include "../Int.hpp"
 #include "../common.hpp"
 
@@ -18,7 +19,7 @@ bool testLessThan(const Int& x, const Int& y, bool expected) {
 }
 
 bool testAddition(const Int& x, const Int& y, const Int& expected) {
-    Int sum1 = x + y;
+    const Int& sum1 = x + y;
     bool result1 = (sum1 == expected);
     if (!result1) {
         cout << "FAILED: " << x << " + " << y << " = " 
@@ -38,7 +39,7 @@ bool testAddition(const Int& x, const Int& y, const Int& expected) {
 }
 
 bool testSubtraction(const Int& x, const Int& y, const Int& expected) {
-    Int diff1 = x - y;
+    const Int& diff1 = x - y;
     bool result1 = (diff1 == expected);
     if (!result1) {
         cout << "FAILED: " << x << " - " << y << " = "
@@ -58,7 +59,7 @@ bool testSubtraction(const Int& x, const Int& y, const Int& expected) {
 }
 
 bool testMultiplication(const Int& x, const Int& y, const Int& expected) {
-    Int prod1 = x * y;
+    const Int& prod1 = x * y;
     bool result1 = (prod1 == expected);
     if (!result1) {
         cout << "FAILED: " << x << " * " << y << " = "
@@ -88,7 +89,7 @@ bool testDivideByInt(const Int& x, int y, const Int& expected) {
 }
 
 bool testDivision(const Int& x, const Int& y, const Int& expected) {
-    Int quotient1 = x / y;
+    const Int& quotient1 = x / y;
     bool result1 = (quotient1 == expected);
     if (!result1) {
         cout << "FAILED: " << x << " / " << y << " = "
@@ -108,7 +109,7 @@ bool testDivision(const Int& x, const Int& y, const Int& expected) {
 }
 
 bool testModulus(const Int& x, const Int& y, const Int& expected) {
-    Int m1 = x % y;
+    const Int& m1 = x % y;
     bool result1 = (m1 == expected);
     if (!result1) {
         cout << "FAILED: " << x << " % " << y << " = " 
@@ -129,7 +130,7 @@ bool testModulus(const Int& x, const Int& y, const Int& expected) {
 
 
 bool testExponentiation(const Int& x, const Int& y, const Int& expected) {
-    Int exp1 = x ^ y;
+    const Int& exp1 = x ^ y;
     bool result1 = (exp1 == expected);
     if (!result1) {
         cout << "FAILED: " << x << " ^ " << y << " = "
@@ -153,8 +154,8 @@ bool testTimesPowerTen(const Int& x, int power, const Int& expected) {
     copy.times_power_ten(power);
     bool result = (copy == expected);
     if (!result)
-        cout << "FAILED: " << x << " times_power_ten(" << power << ") = " 
-            << copy << " : " << expected << endl;
+        cout << "FAILED: " << x << " times_power_ten(" << power << ") = "
+             << copy << " : " << expected << endl;
     return result;
 }
 
@@ -197,7 +198,9 @@ TEST(printInt) {
 
     // check other constructors
     CHECK(testOutput(Int(9999, 2), "9999000000000000000000"));
-    long k(1234567891234567);
+
+    assert(sizeof(int64_t) == 8);
+    int64_t k = 1234567891234567;
     CHECK(testOutput(Int(k), "1234567891234567"));
     CHECK(testOutput(Int(k, 2), "1234567891234567000000000000000000"));
 }
@@ -340,9 +343,11 @@ TEST(division) {
         for (int j = 50; j < 50; ++j)
             CHECK(testDivision(Int(i), Int(j), Int(i / j)));
 
-    for (long i = -100000000000000; i < 100000000000000; i += 7777777777777)
-        for (long j = -100000000000000; j < 100000000000000; j += 9999999999999)
+    assert(sizeof(int64_t) == 8);
+    for (int64_t i = -100000000000000; i < 100000000000000; i += 7777777777777)
+        for (int64_t j = -100000000000000; j < 100000000000000; j += 9999999999999)
             CHECK(testDivision(Int(i), Int(j), Int(i / j)));
+
 
     CHECK(testDivision(Int("152415787806666675432666675280250887626"),
                        Int("123456789123456789123456789"),
@@ -487,16 +492,16 @@ TEST(inStream) {
     std::stringstream ss;
 
     // check operator>> is usable repeatedly on the same instance
-    const std::vector<std::string> testStrings = {
-        "5",
-        "-5",
-        "1234",
-        "-1234",
-        "1123456789",
-        "-1123456789",
-        "123456789123456789",
-        "-123456789123456789",
-    };
+    std::vector<std::string> testStrings;
+    testStrings.push_back("5");
+    testStrings.push_back("-5");
+    testStrings.push_back("1234");
+    testStrings.push_back("-1234");
+    testStrings.push_back("1123456789");
+    testStrings.push_back("-1123456789");
+    testStrings.push_back("123456789123456789");
+    testStrings.push_back("-123456789123456789");
+
     for (int i = 0; i < testStrings.size(); ++i) {
         ss.str(testStrings[i]);
         ss.clear();
@@ -505,11 +510,11 @@ TEST(inStream) {
     }
 
     // check that the fail bit is set on unparseable content
-    const std::vector<std::string> badStrings = {
-        "-",
-        "a",
-        "a1234",
-    };
+    std::vector<std::string> badStrings;
+    badStrings.push_back("-");
+    badStrings.push_back("a");
+    badStrings.push_back("a1234");
+
     for (int i = 0; i < badStrings.size(); ++i) {
         ss.str(badStrings[i]);
         ss.clear();
