@@ -52,24 +52,23 @@ class Vec {
     template <typename S> friend bool   operator != (const Vec<S>& x, const Vec<S>& y); 
 
     /* create a Vec of size entries set to val */
-    static Vec<T> constantVec(size_t size, const T& val) {
-        Vec<T> r(size);
-        r.setEntries(val);
-        return r;
-    }
-    static T scalar_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) {
-        return x.dot(y.cross(z));
-    }
-    static Vec<T> vector_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) {
-        return x.cross(y.cross(z));
-    }
-    
+    static Vec<T> constantVec(size_t size, const T& val);
+
+    /* concatenate with another vector */
     Vec<T> concatenate(const Vec<T>& x) const;
 
+    /* Dot, cross, and triple products */
     T dot(const Vec<T>& x) const;
-    Vec<T> cross(const Vec<T>& x) const;
+    Vec<T> cross(const Vec<T>& x) const;    
+    static T scalar_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z);
+    static Vec<T> vector_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z);
+
+
+    // compute the norm
     T norm();
     template <typename S> S norm();
+
+    // compute the unit vector
     Vec<T> unit_vector();
     template <typename S> Vec<S> unit_vector();
   private:
@@ -206,11 +205,32 @@ bool operator==(const Vec<T>& x, const Vec<T>& y) {
 template <typename S> 
 bool operator!=(const Vec<S>& x, const Vec<S>& y) { return !(x == y); }
 
+template <typename T>
+Vec<T> Vec<T>::constantVec(size_t size, const T& val) {
+    Vec<T> r(size);
+    r.setEntries(val);
+    return r;
+}
+
+template <typename T>
+T Vec<T>::scalar_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) {
+    return x.dot(y.cross(z));
+}
+
+template <typename T>
+Vec<T> Vec<T>::vector_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) {
+    return x.cross(y.cross(z));
+}
+
 template <typename T> 
-T Vec<T>::norm() { return sqrt(dot(*this)); }
+T Vec<T>::norm() {
+    return sqrt(dot(*this));
+}
 
 template <typename T> template <typename S> 
-S Vec<T>::norm() { return sqrt(dot(*this)); }
+S Vec<T>::norm() {
+    return sqrt(dot(*this));
+}
 
 template <typename T>
 Vec<T> Vec<T>::unit_vector() {
