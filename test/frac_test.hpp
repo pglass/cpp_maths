@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace FracTest {
+
 numeric_limits<double> dbl_limits;
 
 TEST(constructionAndOutput) {
@@ -163,3 +165,5 @@ TEST(exponentiation) {
 int main() {
     UnitTest::RunAllTests();
 }
+
+} // namespace FracTest

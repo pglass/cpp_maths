@@ -84,10 +84,13 @@ class Mat {
 
     void swap_rows(size_t a, size_t b);
 
-    template <typename S> inline bool dimensionsMatch(const Mat<S>& other) const 
-        { return (rows == other.numRows()) and (cols == other.numCols()); }
-    inline size_t offset(size_t i, size_t j) const
-        { return i * cols + j; };
+    template <typename S>
+    inline bool dimensionsMatch(const Mat<S>& other) const {
+        return (rows == other.numRows()) and (cols == other.numCols());
+    }
+    inline size_t offset(size_t i, size_t j) const {
+        return i * cols + j;
+    }
 };
 
 template <typename T>
@@ -338,20 +341,18 @@ T Mat<T>::col_cofactor_expansion() {
     return result;
 }
 
-/* Compute the determinant by row reducing.
- * Each row operation alters the determinant by some factor.
- * We maintain the factor as we go, until the matrix is in
- * upper triangular form. The determinant of an upper triangular
- * matrix is simply the product of the main diagonal.
+/* Compute the determinant via row recution.
+ * Each row operation alters the determinant by a predictable factor.
+ * We row reduce and accumulate these factors as we go, until the matrix
+ * is in upper triangular form. The determinant of a triangular
+ * matrix is simply the product of the main diagonal, so we multiple this
+ * by the accumulated factor to get the determinant for the orginal matrix.
  *
  * This is an O(n^3) algorithm for computing the determinant, which
- * is significantly better than a cofactor expansion, which takes O(n!), I think.
+ * is significantly better than a cofactor expansion, which takes O(n!) (I think).
  * (and which involves allocating a buttload of space for minors as you go)
  *
- * This suffers from additional floating point error accumulation
- *   compared to a cofactor expansion (when using a matrix of floats/doubles).
- *
- * TODO: If the template parameter is int, this won't work due to the division.
+ * TODO?: If the template parameter is int, this won't work due to truncation.
  */ 
 template <typename T>
 T Mat<T>::determinant() {
@@ -368,6 +369,7 @@ T Mat<T>::determinant() {
         if (tmp.numCols() <= pivot)
             goto end;
 
+        /* ensure the pivot entry is non-zero by swapping rows */
         size_t i = r;
         while (tmp(i, pivot) == 0) {
             ++i;
@@ -382,6 +384,8 @@ T Mat<T>::determinant() {
             tmp.swap_rows(i, r);
             factor *= -1;
         }
+
+        /* apply row operations to zero out all entries beneath the pivot */
         for (size_t i = pivot + 1; i < tmp.numRows(); ++i) {
             if (i != r) {
                 T val = tmp(i, pivot);
@@ -407,8 +411,10 @@ Mat<T> Mat<T>::rref() {
 
 template <typename T>
 void Mat<T>::swap_rows(size_t a, size_t b) {
-    for (size_t k = 0; k < cols; ++k)
-        std::swap(entry(a, k), entry(b, k));
+    if (a != b) {
+        for (size_t k = 0; k < cols; ++k)
+            std::swap(entry(a, k), entry(b, k));
+    }
 }
 
 /* to reduced row echelon form */

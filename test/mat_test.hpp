@@ -6,6 +6,8 @@
 #include "../Mat.hpp"
 #include "../common.hpp"
 
+namespace MatTest {
+
 template <typename T>
 bool matrixFloatEquals(const Mat<T>& x, const Mat<T>& y) {
     if (x.numRows() != y.numRows() or x.numCols() != y.numCols())
@@ -175,10 +177,10 @@ TEST(matrixDeterminant) {
     Mat<double> b(b_vals, 2, 2);
     Mat<double> c(c_vals, 3, 3);
     Mat<double> d(d_vals, 3, 3);
-    CHECK(a.determinant() == 3);
-    CHECK(b.determinant() == -2);
-    CHECK(c.determinant() == -157);
-    CHECK(d.determinant() == 0);
+    CHECK(float_equals(a.determinant(), 3));
+    CHECK(float_equals(b.determinant(), -2));
+    CHECK(float_equals(c.determinant(), -157));
+    CHECK(float_equals(d.determinant(), 0));
 }
 
 TEST(matrixRowCofactorExpansion) {
@@ -329,3 +331,5 @@ TEST(matrixTrace) {
 int main(int argc, char* argv[]) {
     return UnitTest::RunAllTests();
 }
+
+} // namespace MatTest

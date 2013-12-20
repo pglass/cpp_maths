@@ -1,5 +1,13 @@
 #include "Int.hpp"
 
+std::ostream& operator<<(std::ostream& o, const Int& x) {
+    return x.print(o);
+}
+
+std::istream& operator>>(std::istream& i, Int& x) {
+    return x.read(i);
+}
+
 std::ostream& Int::print(std::ostream& out) const {
     if (negative)
         out << '-';

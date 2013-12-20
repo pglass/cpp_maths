@@ -6,6 +6,8 @@
 #include "../common.hpp"
 
 using namespace std;
+
+namespace VecTest {
     
 const int IVALS[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 const double DVALS[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -178,3 +180,5 @@ TEST(tripleProducts) {
 int main() {
     UnitTest::RunAllTests();
 }
+
+} // namespace VecTest

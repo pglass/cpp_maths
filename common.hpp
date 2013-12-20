@@ -2,6 +2,7 @@
 #define _COMMON_HPP_
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include <climits>
 #if INT_MAX == 2147483647
@@ -24,6 +25,10 @@
 #endif
 
 const double EPSILON = 0.00001;
+
+struct divide_by_zero_error : public std::domain_error {
+    divide_by_zero_error() : std::domain_error("cannot divide by zero") { }
+};
 
 template <typename T>
 inline T abs(const T& a) {

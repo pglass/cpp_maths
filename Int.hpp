@@ -7,7 +7,6 @@
 #include <limits>
 #include <string>
 #include <deque>
-#include "./numbers.hpp"
 #include "./common.hpp"
 
 /* Int - a (virtually) arbitrary precision integer
@@ -35,7 +34,7 @@
  *  16 bits per bin (4 decimal digits) so that the product of two bins does not 
  *  overflow a 32-bit int.
  */
-class Int : public Number {
+class Int {
   public:
     static const int32_t BIN_WIDTH = 9;
     static const int32_t BIN_LIMIT = 1000000000;
@@ -67,8 +66,10 @@ class Int : public Number {
     friend bool operator != (const Int& x, const Int& y) { return x.cmp(y) != 0; }
     friend bool operator == (const Int& x, const Int& y) { return x.cmp(y) == 0; }
 
-    virtual std::ostream& print(std::ostream& out) const;
-    virtual std::istream& read(std::istream& in);
+    friend std::ostream& operator<<(std::ostream& o, const Int& x);
+    friend std::istream& operator>>(std::istream& i, Int& x);
+    std::ostream& print(std::ostream& out) const;
+    std::istream& read(std::istream& in);
 
     bool is_int(int32_t x) const;
     int32_t cmp(const Int& y) const;
@@ -103,6 +104,7 @@ class Int : public Number {
     inline void set_bin_from_back(int32_t i, int32_t val) { bins[bins.size() - 1 - i] = val; }
     inline int32_t get_bin_from_back(int32_t i) const { return bins[bins.size() - 1 - i]; }
 };
+
 
 
 
