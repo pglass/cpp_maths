@@ -26,7 +26,7 @@
  *  and so on, which takes the most advantage of integer arithmetic compared to
  *  having any fewer digits per bin.
  *
- *  Furthermore, the least significant bin is store at the lowest index.
+ *  Furthermore, the least significant bin is stored at the lowest index.
  *  
  *  common.hpp tries to define int32_t and int64_t as 32-bit and 64-bit signed integers.
  *  This uses int64_t integer to temporarily store the product of two int32_t's. If there
@@ -59,12 +59,18 @@ class Int {
     friend void operator %= (Int& x, const Int& y);
     friend void operator ^= (Int& x, const Int& y);
 
-    friend bool operator < (const Int& x, const Int& y) { return x.cmp(y) < 0; }
-    friend bool operator > (const Int& x, const Int& y) { return x.cmp(y) > 0; }
-    friend bool operator >= (const Int& x, const Int& y) { return x.cmp(y) >= 0; }
-    friend bool operator <= (const Int& x, const Int& y) { return x.cmp(y) <= 0; }
-    friend bool operator != (const Int& x, const Int& y) { return x.cmp(y) != 0; }
-    friend bool operator == (const Int& x, const Int& y) { return x.cmp(y) == 0; }
+//    friend bool operator < (const Int& x, const Int& y) { return x.cmp(y) < 0; }
+//    friend bool operator > (const Int& x, const Int& y) { return x.cmp(y) > 0; }
+//    friend bool operator >= (const Int& x, const Int& y) { return x.cmp(y) >= 0; }
+//    friend bool operator <= (const Int& x, const Int& y) { return x.cmp(y) <= 0; }
+//    friend bool operator != (const Int& x, const Int& y) { return x.cmp(y) != 0; }
+//    friend bool operator == (const Int& x, const Int& y) { return x.cmp(y) == 0; }
+    inline bool operator < (const Int& other) const { return cmp(other) < 0; }
+    inline bool operator > (const Int& other) const { return cmp(other) > 0; }
+    inline bool operator <= (const Int& other) const { return cmp(other) <= 0; }
+    inline bool operator >= (const Int& other) const { return cmp(other) >= 0; }
+    inline bool operator != (const Int& other) const { return cmp(other) != 0; }
+    inline bool operator == (const Int& other) const { return cmp(other) == 0; }
 
     friend std::ostream& operator<<(std::ostream& o, const Int& x);
     friend std::istream& operator>>(std::istream& i, Int& x);
