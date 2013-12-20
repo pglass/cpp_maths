@@ -12,9 +12,10 @@ using std::endl;
 bool testLessThan(const Int& x, const Int& y, bool expected) {
     bool lt = (x < y);
     bool result = (lt == expected); 
-    if (!result)
+    if (!result) {
         cout << "FAILED: " << x << " < " << y << " = " 
              << lt << " : " << expected << endl;
+    }
     return result;
 }
 

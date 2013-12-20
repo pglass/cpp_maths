@@ -7,45 +7,33 @@
 #include "./common.hpp"
 
 /* Vec - a templated mathematical vector type
- *   This class is mostly straightforward. The only concern is if you want to
+ *   This class is mostly straightforward. One concern is if you want to
  *      compute norm() or unit_vector() accurately, you may need to provide a template
  *      parameter to these functions. In particular, if you have a Vec<int> x, then 
  *      x.norm() will return an int in any case which will probably give the wrong answer, 
  *      but x.norm<double>() will compute the correct magnitude.
- *
- *   For future reference,
- *     In C++11, this syntax using 'auto' and a trailing return type works: 
- *          template<class Lhs, class Rhs>
- *            auto adding_func(const Lhs &lhs, const Rhs &rhs) -> decltype(lhs+rhs) {return lhs + rhs;}
- *     Then we might be able to do something like:
- *          template <typename T>
- *            auto norm() -> decltype(sqrt(T(1))) { ... }
- *     However, for the time being (2013) I prefer not to rely on C++11 features.
+ *   Many member functions are double-templated. The first template is for the class.
+ *      The second template is for the function arguments. This is to support adding, say,
+ *      an Int to a vector of Fracs easily -- the Int will be converted to a Frac for you.
  */
 template <typename T>
 class Vec {
   public:
-    Vec(size_t size)
-        { data.resize(size, 0); }
-    template <typename S> Vec(const Vec<S>& x)                  /* copy constructor */
-        { for (size_t i = 0; i < x.size(); ++i) data.push_back(T(x[i])); }
-    template <typename S> Vec(const S* const vals, size_t size) /* construct from array and size */
-        { for (size_t i = 0; i < size; ++i) data.push_back(T(vals[i])); }
-    template <typename S> Vec(const std::vector<S>& vals)       /* construct from vector */
-        { for (size_t i = 0; i < vals.size(); ++i) data.push_back(T(vals[i])); }
-    
-    template <typename S> void setEntries(const S& val)
-        { data.assign(size(), T(val)); }
-    template <typename S> void setEntries(const S* const vals, size_t _size) {
-        if (_size < size())
-            throw std::invalid_argument("not enough entries in array to fill Vec");
-        for (size_t i = 0; i < size(); ++i)
-            data[i] = T(vals[i]);
-    }
+    explicit Vec(size_t size) { data.resize(size, 0); }
+    template <typename S> explicit Vec(const Vec<S>& x);                     /* copy constructor */
+    template <typename S> explicit Vec(const S* const vals, size_t length);  /* construct from array + length */
+    template <typename S> explicit Vec(const std::vector<S>& vals);          /* construct from std::vector */
 
-    inline size_t size() const { return data.size(); }  /* number of elements */
-    T&  operator[](size_t i) { return data[i]; }
-    T   operator[](size_t i) const { return data[i]; }
+    /* Return the number of elements */
+    inline size_t size() const { return data.size(); }
+    /* Get/set elements */
+    inline T& operator[](size_t i) { return data[i]; }
+    inline T operator[](size_t i) const { return data[i]; }
+
+    /* set all entries to val */
+    template <typename S> void setEntries(const S& val);
+    /* set all entries to the given array */
+    template <typename S> void setEntries(const S* const vals, size_t size);
 
     template <typename S> friend std::ostream& operator<<(std::ostream& out, const Vec<S>& x);
 
@@ -53,27 +41,30 @@ class Vec {
     template <typename S> friend Vec<S> operator * (const S& a, const Vec<S>& y); 
     template <typename S> friend Vec<S> operator * (const Vec<S>& y, const S& a);
     template <typename S> friend Vec<S> operator / (const Vec<S>& y, const S& a); 
-    template <typename S> friend void   operator += (Vec<S>& x, const Vec<S>& y);
-    template <typename S> friend void   operator -= (Vec<S>& x, const Vec<S>& y);
+    template <typename S> friend void   operator *= (Vec<S>& y, const S& a);
+    template <typename S> friend void   operator /= (Vec<S>& y, const S& a);
     /* vector-vector operations */
     template <typename S> friend Vec<S> operator +  (const Vec<S>& x, const Vec<S>& y);
     template <typename S> friend Vec<S> operator -  (const Vec<S>& x, const Vec<S>& y);
-    template <typename S> friend void   operator *= (Vec<S>& y, const S& a);
-    template <typename S> friend void   operator /= (Vec<S>& y, const S& a); 
+    template <typename S> friend void   operator += (Vec<S>& x, const Vec<S>& y);
+    template <typename S> friend void   operator -= (Vec<S>& x, const Vec<S>& y);
     template <typename S> friend bool   operator == (const Vec<S>& x, const Vec<S>& y);
     template <typename S> friend bool   operator != (const Vec<S>& x, const Vec<S>& y); 
 
-    static Vec<T> constantVec(size_t size, const T& val) {  /* create a Vec of size entries set to val */
+    /* create a Vec of size entries set to val */
+    static Vec<T> constantVec(size_t size, const T& val) {
         Vec<T> r(size);
         r.setEntries(val);
         return r;
     }
-    static T scalar_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) 
-        { return x.dot(y.cross(z)); }
-    static Vec<T> vector_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) 
-        { return x.cross(y.cross(z)); }
+    static T scalar_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) {
+        return x.dot(y.cross(z));
+    }
+    static Vec<T> vector_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec<T>& z) {
+        return x.cross(y.cross(z));
+    }
     
-    Vec<T> concatenate(const Vec<T>& x) const;  /* concatenate two vectors */
+    Vec<T> concatenate(const Vec<T>& x) const;
 
     T dot(const Vec<T>& x) const;
     Vec<T> cross(const Vec<T>& x) const;
@@ -84,6 +75,42 @@ class Vec {
   private:
     std::vector<T> data;
 };
+
+/* Copy constructor */
+template <typename T> template <typename S>
+Vec<T>::Vec(const Vec<S>& x) {
+    for (size_t i = 0; i < x.size(); ++i)
+        data.push_back(T(x[i]));
+}
+
+/* Construct from array + length */
+template <typename T> template <typename S>
+Vec<T>::Vec(const S* const vals, size_t length) {
+    for (size_t i = 0; i < length; ++i)
+        data.push_back(T(vals[i]));
+}
+
+/* Construct from std::vector */
+template <typename T> template <typename S>
+Vec<T>::Vec(const std::vector<S>& vals) {
+    for (size_t i = 0; i < vals.size(); ++i)
+        data.push_back(T(vals[i]));
+}
+
+/* set all entries to val */
+template <typename T> template <typename S>
+void Vec<T>::setEntries(const S& val) {
+    data.assign(size(), T(val));
+}
+
+/* set all entries to the given array */
+template <typename T> template <typename S>
+void Vec<T>::setEntries(const S* const vals, size_t _size) {
+    if (_size < size())
+        throw std::invalid_argument("not enough entries in array to fill Vec");
+    for (size_t i = 0; i < size(); ++i)
+        data[i] = T(vals[i]);
+}
 
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const Vec<T>& x) {

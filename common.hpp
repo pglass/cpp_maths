@@ -23,8 +23,6 @@
 #error "Cannot find 64 bit integer"
 #endif
 
-
-
 const double EPSILON = 0.00001;
 
 template <typename T>
