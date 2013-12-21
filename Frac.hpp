@@ -33,12 +33,12 @@ class Frac {
 
     Frac reciprocal() { return Frac(bb, tt); }
 
-    friend bool operator == (const Frac& x, const Frac& y);
-    friend bool operator != (const Frac& x, const Frac& y);
-    friend bool operator <  (const Frac& x, const Frac& y);
-    friend bool operator <= (const Frac& x, const Frac& y);
-    friend bool operator >  (const Frac& x, const Frac& y);
-    friend bool operator >= (const Frac& x, const Frac& y);
+    inline friend bool operator==(const Frac& x, const Frac& y) { return x.tt == y.tt && x.bb == y.bb; }
+    inline friend bool operator!=(const Frac& x, const Frac& y) { return !(x == y); }
+    inline friend bool operator< (const Frac& x, const Frac& y) { return x.tt * y.bb < y.tt * x.bb; }
+    inline friend bool operator> (const Frac& x, const Frac& y) { return y < x; }
+    inline friend bool operator<=(const Frac& x, const Frac& y) { return !(y < x); }
+    inline friend bool operator>=(const Frac& x, const Frac& y) { return !(x < y); }
     
     friend Frac operator + (const Frac& x, const Frac& y) { return Frac(x.tt * y.bb + y.tt * x.bb, x.bb * y.bb); }
     friend Frac operator - (const Frac& x, const Frac& y) { return Frac(x.tt * y.bb - y.tt * x.bb, x.bb * y.bb); }

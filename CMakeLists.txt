@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(cpp_maths)
 
+add_definitions(-Wall)
+
 add_subdirectory(unittest-cpp)
 include_directories(unittest-cpp/UnitTest++)
 

@@ -252,10 +252,10 @@ Int operator-(const Int& x) {
     return y;
 }
 
-/* Default constructor - zero is the default value */
-Int::Int() {
-    bins.push_back(0);
-    negative = false;
+/* Default constructor - zero is the default value
+ * bins(1, 0) says size = 1 and value = 0.
+ */
+Int::Int() : bins(1, 0), negative(false) {
 }
 
 /* Construct from a 64-bit int and apply a shift.
@@ -263,19 +263,14 @@ Int::Int() {
  *   That is, after construction, *this will have the value x * (BIN_LIMIT ^ shift).
  *   (This is used in multiplication and division)
  */
-Int::Int(int64_t x, size_t shift) {
+Int::Int(int64_t x, size_t shift) : bins(shift, 0), negative(false) {
     if (x < 0) {
         negative = true;
         x = -x;
     } else if (x == 0) {
-        negative = false;
-        bins.push_back(0);
+        set_value(0);
         return;
-    } else {
-        negative = false;
     }
-    for (size_t i = 0; i < shift; ++i)
-        bins.push_back(0);
     while (x >= BIN_LIMIT) {
         bins.push_back(x % BIN_LIMIT);
         x /= BIN_LIMIT;
@@ -289,10 +284,7 @@ Int::Int(int64_t x, size_t shift) {
  *   That is, after construction, *this will have the value x * (BIN_LIMIT ^ shift).
  *   (This is used in multiplication and division)
  */
-Int::Int(const Int& x, size_t shift) {
-    negative = x.negative;
-    for (size_t i = 0; i < shift; ++i)
-        bins.push_back(0);
+Int::Int(const Int& x, size_t shift) : bins(shift, 0), negative(x.negative) {
     for (size_t i = 0; i < x.bins.size(); ++i)
         bins.push_back(x.bins[i]);
 }

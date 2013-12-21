@@ -19,7 +19,7 @@
 template <typename T>
 class Vec {
   public:
-    explicit Vec(size_t size) { data.resize(size, 0); }
+    explicit Vec(size_t size) : data(size, 0) { }
     template <typename S> explicit Vec(const Vec<S>& x);                     /* copy constructor */
     template <typename S> explicit Vec(const S* const vals, size_t length);  /* construct from array + length */
     template <typename S> explicit Vec(const std::vector<S>& vals);          /* construct from std::vector */

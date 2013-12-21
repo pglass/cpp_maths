@@ -10,7 +10,7 @@ namespace MatTest {
 
 template <typename T>
 bool matrixFloatEquals(const Mat<T>& x, const Mat<T>& y) {
-    if (x.numRows() != y.numRows() or x.numCols() != y.numCols())
+    if (x.numRows() != y.numRows() || x.numCols() != y.numCols())
         return false;
     
     for (size_t i = 0; i < x.numRows(); ++i)

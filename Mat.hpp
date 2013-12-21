@@ -73,7 +73,7 @@ class Mat {
         swap(a.cols, b.cols);
     }
 
-    inline void operator=(Mat<T> a) {
+    inline Mat<T>& operator=(Mat<T> a) {
         swap(*this, a);
         return *this;
     }
@@ -86,7 +86,7 @@ class Mat {
 
     template <typename S>
     inline bool dimensionsMatch(const Mat<S>& other) const {
-        return (rows == other.numRows()) and (cols == other.numCols());
+        return (rows == other.numRows()) && (cols == other.numCols());
     }
     inline size_t offset(size_t i, size_t j) const {
         return i * cols + j;
@@ -105,25 +105,25 @@ std::ostream& operator<<(std::ostream& out, Mat<T> m) {
 }
 
 template <typename T>
-Mat<T>::Mat(const Mat<T>& x) : rows(x.numRows()), cols(x.numCols()) {
-    data = new T[rows * cols];
+Mat<T>::Mat(const Mat<T>& x)
+    : rows(x.numRows()), cols(x.numCols()), data(new T[rows * cols]) {
     setEntries(x.data, rows * cols);
 }
 
 template <typename T>
-Mat<T>::Mat(size_t _rows, size_t _cols) : rows(_rows), cols(_cols) {
-    data = new T[rows * cols];
+Mat<T>::Mat(size_t _rows, size_t _cols)
+    : rows(_rows), cols(_cols), data(new T[rows * cols]) {
 }
 
 template <typename T>
-Mat<T>::Mat(size_t _rows, size_t _cols, const T& _val) : rows(_rows), cols(_cols) {
-    data = new T[rows * cols];
+Mat<T>::Mat(size_t _rows, size_t _cols, const T& _val)
+    : rows(_rows), cols(_cols), data(new T[rows * cols]) {
     setEntries(_val);
 }
 
 template <typename T>
-Mat<T>::Mat(const T* const _vals, size_t _rows, size_t _cols) : rows(_rows), cols(_cols) {
-    data = new T[rows * cols];
+Mat<T>::Mat(const T* const _vals, size_t _rows, size_t _cols)
+    : rows(_rows), cols(_cols), data(new T[rows * cols]) {
     setEntries(_vals, rows * cols);
 }
 

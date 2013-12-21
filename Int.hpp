@@ -85,7 +85,10 @@ class Int {
 
     int32_t cmp_bins(const Int& x) const;
 
-    inline void shift(size_t amount) { bins.push_front(0); }
+    inline void shift(size_t amount) {
+        for (size_t i = 0; i < amount; ++i)
+            bins.push_front(0);
+    }
     inline void set_bin_from_back(int32_t i, int32_t val) { bins[bins.size() - 1 - i] = val; }
     inline int32_t get_bin_from_back(int32_t i) const { return bins[bins.size() - 1 - i]; }
 

@@ -504,7 +504,7 @@ TEST(inStream) {
     testStrings.push_back("0");
 
     std::stringstream ss;
-    for (int i = 0; i < testStrings.size(); ++i) {
+    for (size_t i = 0; i < testStrings.size(); ++i) {
         ss.str(testStrings[i]);
         ss.clear();
         CHECK(bool(ss >> x));
@@ -517,7 +517,7 @@ TEST(inStream) {
     badStrings.push_back("a");
     badStrings.push_back("a1234");
 
-    for (int i = 0; i < badStrings.size(); ++i) {
+    for (size_t i = 0; i < badStrings.size(); ++i) {
         ss.str(badStrings[i]);
         ss.clear();
         ss >> x;

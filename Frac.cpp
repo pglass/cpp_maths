@@ -114,10 +114,8 @@ Int Frac::nochecks_gcd(const Int& x, const Int& y) {
 /* Parse a fraction of the basic form <integer>/<integer>
  * This throws an invalid_invalid argument on bad inputs.
  */
-Frac::Frac(const string& x) {
+Frac::Frac(const string& x) : tt(0), bb(1) {
     if (x.length() == 0) {
-        tt = Int(0);
-        bb = Int(1);
         return;
     }
     int j = x.find('/');
@@ -143,13 +141,6 @@ void Frac::normalize() {
     tt /= c;
     bb /= c;
 }
-
-bool operator==(const Frac& x, const Frac& y) { return x.tt == y.tt and x.bb == y.bb; }
-bool operator!=(const Frac& x, const Frac& y) { return !(x == y); }
-bool operator< (const Frac& x, const Frac& y) { return x.tt * y.bb < y.tt * x.bb; }
-bool operator> (const Frac& x, const Frac& y) { return y < x; }
-bool operator<=(const Frac& x, const Frac& y) { return !(y < x); }
-bool operator>=(const Frac& x, const Frac& y) { return !(x < y); }
 
 void operator+=(Frac& x, const Frac& y) {
     x.tt = x.tt * y.bb + y.tt * x.bb;
