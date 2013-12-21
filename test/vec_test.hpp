@@ -8,6 +8,14 @@
 using namespace std;
 
 namespace VecTest {
+
+template <typename T, typename S>
+bool stringEquals(const T& a, const S& b) {
+    stringstream s1, s2;
+    s1 << a;
+    s2 << b;
+    return s1.str() == s2.str();
+}
     
 const int IVALS[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 const double DVALS[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -102,9 +110,11 @@ TEST(vecAddition) {
     CHECK(v - v == zero);
     CHECK(v + v == w);
     CHECK(v + w == x);
+    CHECK(w + v == x);
     CHECK(x - w == v);
     
     CHECK_THROW(v + z, invalid_argument);
+    CHECK_THROW(z + v, invalid_argument);
 
     Vec<int> r(v);
     r += w;
@@ -114,10 +124,10 @@ TEST(vecAddition) {
 }
 
 TEST(dotProduct) {
-    Vec<int> v(IVALS, 5);
-    Vec<int> w = 2 * v;
-    Vec<int> zero(5);
-    Vec<int> z(IVALS, 6);
+    Vec<int> v(IVALS, 5);   // (1, 2, 3, 4, 5)
+    Vec<int> w = 2 * v;     // (2, 4, 6, 8, 10)
+    Vec<int> zero(5);       // (0, 0, 0, 0, 0)
+    Vec<int> z(IVALS, 6);   // (1, 2, 3, 4, 5, 6)
 
     CHECK(v.dot(v) == 55);
     CHECK(v.dot(w) == 110);
@@ -128,39 +138,39 @@ TEST(dotProduct) {
 }
 
 TEST(crossProduct) {
+    int x_vals[] = {-1, 2, -1};
+    Vec<int> x(x_vals, 3);                          // (-1, 2, -1)
     Vec<int> v(IVALS, 3);                           // (1, 2, 3)
     Vec<int> w = v + Vec<int>::constantVec(3, 1);   // (2, 3, 4)
-    int x_vals[] = {-1, 2, -1};
-    Vec<int> x(x_vals, 3);
-    Vec<int> z = Vec<int>::constantVec(4, 4);
+    Vec<int> z = Vec<int>::constantVec(4, 4);       // (4, 4, 4, 4)
 
     CHECK(v.cross(w) == x);
     CHECK(w.cross(v) == -1 * x);
 
     CHECK_THROW(w.cross(z), invalid_argument);
+    CHECK_THROW(z.cross(w), invalid_argument);
 }
 
 TEST(norm) {
-    Vec<int> v(IVALS, 4);  // 1 2 3 4
-    CHECK(v.norm<double>() == sqrt(30));
+    Vec<int> v(IVALS, 4);   // (1, 2, 3, 4)
+    Vec<double> w(v);       // (1.0, 2.0, 3.0, 4.0)
+    CHECK(float_equals(v.norm<double>(), sqrt(30)));
+    CHECK(float_equals(w.norm(), sqrt(30)));
     CHECK(v.norm() == int(sqrt(30)));
-
-    double w_vals[] = {1.0, 2.0, 3.0, 4.0};
-    Vec<double> w(w_vals, 4);
+    CHECK(w.norm<int>() == int(sqrt(30)));
 }
 
 TEST(unit_vector) {
-    double w_vals[] = {1.0, 2.0, 3.0, 4.0};
     double x_vals[] = { 1.0/sqrt(30), 2.0/sqrt(30), 3.0/sqrt(30), 4.0/sqrt(30) };
-    Vec<double> w(w_vals, 4);
+    Vec<double> w(IVALS, 4);    // (1.0, 2.0, 3.0, 4.0)
     Vec<double> x(x_vals, 4);
-    CHECK(w.unit_vector() == x);
+    CHECK(stringEquals(w.unit_vector(), x));
     CHECK(float_equals(1.0, w.unit_vector().norm()));
     
     Vec<int> y(IVALS, 4);
     Vec<int> zero(4);
-    CHECK(y.unit_vector() == zero);         // integer division truncates to zero
-    CHECK(y.unit_vector<double>() == x);    // floating ops give correct value
+    CHECK(stringEquals(y.unit_vector(), zero));         // integer division truncates to zero
+    CHECK(stringEquals(y.unit_vector<double>(), x));    // floating ops give correct value
     CHECK(float_equals(1.0, y.unit_vector<double>().norm()));
 }
 
