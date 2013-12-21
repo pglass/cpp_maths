@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "../Frac.hpp"
 
 using namespace std;
@@ -17,6 +18,12 @@ int main() {
     cout << "x.reciprocal() = " << x.reciprocal() << endl;
     cout << "Frac::GCD(45, 40) = " << Frac::GCD(45, 40) << endl;
     cout << "Frac::from_double(0.2) = " << Frac::from_double(0.2) << endl;  // 1/5
+
+    // usage of stream input
+    stringstream ss("(41/189)");
+    Frac f;
+    ss >> f;
+    cout << "'" << ss.str() << "' >> f; f = " << f << endl;
 }
 
 /* The output is the following:
@@ -30,4 +37,5 @@ int main() {
     x.reciprocal() = (4/1)
     Frac::GCD(45, 40) = 5
     Frac::from_double(0.2) = (1/5)
+    '(41/189)' >> f; f = (41/189)
 */
