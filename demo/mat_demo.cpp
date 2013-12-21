@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../Mat.hpp"
+#include "../src/Mat.hpp"
 
 using namespace std;
 

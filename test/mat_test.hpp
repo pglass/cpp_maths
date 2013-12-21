@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <vector>
 #include <UnitTest++.h>
-#include "../Mat.hpp"
-#include "../common.hpp"
+#include "../src/Mat.hpp"
+#include "../src/common.hpp"
 
 namespace MatTest {
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include "../Frac.hpp"
+#include "../src/Frac.hpp"
 
 using namespace std;
 

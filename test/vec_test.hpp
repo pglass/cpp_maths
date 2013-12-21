@@ -2,8 +2,8 @@
 #include <stdexcept>
 #include <cmath>
 #include <UnitTest++.h>
-#include "../Vec.hpp"
-#include "../common.hpp"
+#include "../src/Vec.hpp"
+#include "../src/common.hpp"
 
 using namespace std;
 

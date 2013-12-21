@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../Vec.hpp"
+#include "../src/Vec.hpp"
 
 using namespace std;
 

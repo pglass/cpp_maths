@@ -1,9 +1,9 @@
 #include <iostream>
 #include <limits>
 #include <UnitTest++.h>
-#include "../common.hpp"
-#include "../Int.hpp"
-#include "../Frac.hpp"
+#include "../src/common.hpp"
+#include "../src/Int.hpp"
+#include "../src/Frac.hpp"
 
 using namespace std;
 

@@ -6,7 +6,9 @@ add_definitions(-Wall)
 add_subdirectory(unittest-cpp)
 include_directories(unittest-cpp/UnitTest++)
 
-aux_source_directory(${PROJECT_SOURCE_DIR} SOURCES)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src SOURCES)
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
 
 add_executable(int_demo demo/int_demo.cpp ${SOURCES})
 add_executable(vec_demo demo/vec_demo.cpp ${SOURCES})

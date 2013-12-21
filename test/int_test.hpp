@@ -3,8 +3,8 @@
 #include <vector>
 #include <UnitTest++.h>
 #include <cassert>
-#include "../Int.hpp"
-#include "../common.hpp"
+#include "../src/Int.hpp"
+#include "../src/common.hpp"
 
 using std::cout;
 using std::endl;

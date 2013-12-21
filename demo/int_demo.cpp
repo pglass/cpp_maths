@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../Int.hpp"
+#include "../src/Int.hpp"
 
 using namespace std;
 
