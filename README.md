@@ -68,14 +68,12 @@ Todo
 
 * Need documentation.
 * More test cases is always good.
-* Compilation is slow. Use object files.
 * `Int`: implement Karatsuba multiplication 
 * `Int`: overload `++` and `--` operators
-* `Frac`: implement the `read(istream&)` function
 * `Mat`: write nicer printing functions that align columns
 * `Mat`: add a backsubstitution function
 * `Mat`: add a function to find the rank of a matrix. I believe this just requires a row reduction and counting the number of nonzero rows.
-* `Mat`: add functions to find the eigensystem/diagonalization of a matrix. Small cases can be solved symobilcally via the characteristic polynomial, but this will not scale. Numerical algorithms [here](http://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Eigenvalue_algorithms) will work. The QR algorithm looks practical but will require other tools first. The Rayleigh method seems to be simple and has quick convergence.
+* `Mat`: add functions to find the eigensystem/diagonalization of a matrix. Small cases can be solved symbolically via the characteristic polynomial, but this will not scale. Numerical algorithms [here](http://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Eigenvalue_algorithms) will work. The QR algorithm looks practical but will require other tools first. The Rayleigh method seems to be simple and has quick convergence.
 * `Mat`: there are a number of other useful [matrix decompositions](http://en.wikipedia.org/wiki/Matrix_decomposition).
 
 Future goals
