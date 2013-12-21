@@ -13,7 +13,7 @@ Usage of all the classes can be found in the corresponding files in the `demo` f
 
 ## Building ##
 
-You will need to have CMake installed (version 2.6 or greater):
+This is known to compile with GCC 4.6.2 (MinGW). You will need to have CMake installed (version 2.6 or greater).
 
     mkdir build
     cd build
