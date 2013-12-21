@@ -490,7 +490,6 @@ TEST(timesPowerTen) {
  */ 
 TEST(inStream) {
     Int x;
-    std::stringstream ss;
 
     // check operator>> is usable repeatedly on the same instance
     std::vector<std::string> testStrings;
@@ -502,11 +501,13 @@ TEST(inStream) {
     testStrings.push_back("-1123456789");
     testStrings.push_back("123456789123456789");
     testStrings.push_back("-123456789123456789");
+    testStrings.push_back("0");
 
+    std::stringstream ss;
     for (int i = 0; i < testStrings.size(); ++i) {
         ss.str(testStrings[i]);
         ss.clear();
-        ss >> x;
+        CHECK(bool(ss >> x));
         CHECK(testOutput(x, testStrings[i]));
     }
 

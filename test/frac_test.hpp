@@ -1,14 +1,27 @@
 #include <iostream>
 #include <limits>
 #include <UnitTest++.h>
-#include "../Frac.hpp"
 #include "../common.hpp"
+#include "../Int.hpp"
+#include "../Frac.hpp"
 
 using namespace std;
 
 namespace FracTest {
 
 numeric_limits<double> dbl_limits;
+
+bool runInstream(const std::string& input, const Frac& expected) {
+    std::stringstream ss;
+    ss << input;
+    Frac f;
+    bool result = (ss >> f && f == expected);
+    if (!result) {
+        cout << "FAILED: '" << input << "' >> frac --> "
+            << f << " : " << expected << endl;
+    }
+    return result;
+}
 
 TEST(constructionAndOutput) {
     CHECK(testOutput(Frac(0), "(0/1)"));
@@ -59,6 +72,34 @@ TEST(constructionAndOutput) {
     CHECK_THROW(Frac::from_double(dbl_limits.infinity()), invalid_argument);
     CHECK_THROW(Frac::from_double(dbl_limits.quiet_NaN()), invalid_argument);
     CHECK_THROW(Frac::from_double(dbl_limits.signaling_NaN()), invalid_argument);
+}
+
+TEST(fracInstream) {
+    // arg0 is the input, arg1 is the expected output
+    CHECK(runInstream("0",      Frac(0)));
+    CHECK(runInstream("(0)",    Frac(0)));
+    CHECK(runInstream("0/1",    Frac(0)));
+    CHECK(runInstream("(0/1)",  Frac(0)));
+    CHECK(runInstream("-0",     Frac(0)));
+    CHECK(runInstream("-0/1",   Frac(0)));
+    CHECK(runInstream("-0/-1",  Frac(0)));
+    CHECK(runInstream("0/-1",   Frac(0)));
+    CHECK(runInstream("(00000/11111111)", Frac(0)));
+
+    CHECK(runInstream("1/1", Frac(1)));
+    CHECK(runInstream("(1/1)", Frac(1)));
+    CHECK(runInstream("(-1/1)", Frac(-1)));
+    CHECK(runInstream("(1/-1)", Frac(-1)));
+    CHECK(runInstream("(-1/-1)", Frac(1)));
+
+    CHECK(runInstream("(1/2)", Frac(1, 2)));
+    CHECK(runInstream("1/2", Frac(1, 2)));
+
+
+    CHECK(runInstream("(1/23)", Frac(1, 23)));
+    CHECK(runInstream("(1234/5678)", Frac(1234, 5678)));
+    CHECK(runInstream("123456789123456789/987654321987654321",
+                      Frac(Int("123456789123456789"), Int("987654321987654321"))));
 }
 
 TEST(relationalOperators) {
@@ -139,16 +180,16 @@ TEST(multiplicationAndDivision) {
     CHECK(c == Frac(9, 4));
     c /= c;
     CHECK(c == Frac(1, 1));
-    c = Frac(x);
+    c = x;
     c *= y;
     CHECK(c == Frac(-7, 2));
-    c = Frac(a);
+    c = a;
     c /= b;
     CHECK(c == Frac(2, 3));
 
     // check *=, /= with an Int
     Int i(3);
-    c = Frac(x);
+    c = x;
     c *= i;
     CHECK(c == Frac(9, 2));
     c /= i;

@@ -49,6 +49,7 @@ class Int {
     std::ostream& print(std::ostream& out) const;
     std::istream& read(std::istream& in);
 
+    void set_value(int32_t x);
     bool equals_int32(int32_t x) const;
     int32_t cmp(const Int& y) const;
     void times_power_ten(int32_t power);
@@ -82,7 +83,6 @@ class Int {
     std::deque<int32_t> bins;
     bool negative;
 
-    void set_value(int32_t x);
     int32_t cmp_bins(const Int& x) const;
 
     inline void shift(size_t amount) { bins.push_front(0); }

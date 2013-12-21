@@ -5,7 +5,7 @@
 #include <string>
 #include <limits>
 #include <cmath>
-#include "./Int.hpp"
+#include "Int.hpp"
 
 using namespace std;
 
@@ -30,6 +30,7 @@ class Frac {
 
     static Int GCD(const Int& a, const Int& b); /* move this somewhere else? */
     static Frac from_double(double x, int precision = 15); 
+
     Frac reciprocal() { return Frac(bb, tt); }
 
     friend bool operator == (const Frac& x, const Frac& y);
@@ -67,10 +68,9 @@ class Frac {
     friend void operator ^= (Frac& x, const Int& a); 
 
     friend std::ostream& operator<<(std::ostream& o, const Frac& x);
-    friend std::istream& operator>>(std::istream& i, const Frac& x);
+    friend std::istream& operator>>(std::istream& i, Frac& x);
     std::ostream& print(std::ostream& out) const;
     std::istream& read(std::istream& in);
-
   private:
     Int tt, bb; /* top, bottom */
     void normalize(); 

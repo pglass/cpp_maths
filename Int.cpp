@@ -43,7 +43,7 @@ int32_t parse_int(std::stringstream& ss, int max_digits) {
     }
     int32_t val;
     s_num >> val;
-    if (s_num.fail() or !s_num.eof())
+    if (s_num.fail() || !s_num.eof())
         throw std::invalid_argument("Failed to parse int from '" + s_num.str() + "'");
     return val;
 }
@@ -306,7 +306,7 @@ Int::Int(const Int& x, size_t shift) {
 Int::Int(const std::string& x) : negative(false) {
     std::stringstream ss(x);
     this->read(ss);
-    if (ss.fail() or !ss.eof()) {
+    if (ss.fail() || !ss.eof()) {
         set_value(0);
         throw std::invalid_argument("Failed to parse Int from '" + x + "'");
     }
@@ -532,9 +532,8 @@ void quotient_and_remainder(const Int& y, const Int& x, int32_t& q, Int& r) {
     q += 1;
 }
 
-/* Int::divide - do a full, correct, in-place division of two Ints
- *   This handles the sign, and will throw a divide_by_zero_error
- *   when x is zero.
+/* Int::divide - do an in-place division of two Ints
+ *   This handles the sign, and throws a divide_by_zero_error when x is zero.
  */
 void Int::divide(const Int& x) {
     if (x.equals_int32(0)) {

@@ -13,8 +13,49 @@ ostream& Frac::print(ostream& out) const {
     return out;
 }
 
-// TODO
+/* This reads in a fraction of the form '(INT/INT)' or 'INT/INT'.
+ * This expects no whitespace.
+ */
 istream& Frac::read(istream& in) {
+    // check whether the stream is in a good state
+    std::istream::sentry s(in, true);
+    if (!s)
+        return in;
+
+    //
+    bool parens = false;
+    bool success = true;
+    if (in.peek() == '(') {
+        parens = true;
+        in.get();
+    }
+    if (in >> tt) {
+        if (in.peek() == '/') {
+            in.get();
+            if (in >> bb) {
+            } else {
+                success = false;
+            }
+        } else {
+            bb.set_value(1);
+        }
+    } else {
+        success = false;
+        if (parens)
+            in.unget();
+    }
+    // only match a close parens if we matched an opening parens
+    if (success && parens && in.peek() == ')') {
+        in.get();
+    }
+
+    if (success) {
+        // in.get() sets the failbit on eof but we have not failed, so unset the failbit
+        // (It will be re-set on later calls to get() on the stream)
+        in.clear(in.rdstate() & ~std::ios::failbit);  // clear(flags) sets all the flags as given
+    }
+
+    normalize();
     return in;
 }
 

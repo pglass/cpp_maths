@@ -14,7 +14,7 @@ add_executable(test_main test/test_main.cpp
     test/frac_test.hpp
     test/vec_test.hpp
     test/mat_test.hpp
-    Int.* Frac.* Vec.hpp Mat.hpp)
+    common.* Int.* Frac.* Vec.hpp Mat.hpp)
 target_link_libraries(test_main UnitTest++)
 
 enable_testing()
