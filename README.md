@@ -1,6 +1,6 @@
 Overview
 ========
-This is a math library in C++ focused on symbolic computation.
+This is a math library for C++ with a focus on symbolic computation.
 
 The following headers are provided. 
 
@@ -25,14 +25,14 @@ This will build all of the demo and test executables. You can run tests with:
     make test
 
 ### Int.hpp ###
-`Int` is an arbitrary precision integer implemented as a list of ints. For example, 123456789234567890345678901 is represented as {345678901, 234567890, 123456789}. Then all operations are done int-by-int which is considerably faster than going digit-by-digit. The standard arithmetic operators and relational operators are overloaded. Note that `^` is exponentiation and not a bitwise xor. An `Int` can be constructed from a string or a long: `Int("-1234")` or `Int(-1234)`. Int also works with streams (`<<` and `>>`).
+`Int` is an arbitrary precision integer implemented as a list of ints. For example, 111111111222222222333333333 is represented as {333333333, 222222222, 111111111}. Then all operations are done int-by-int which is considerably faster than going digit-by-digit. The standard arithmetic operators and relational operators are overloaded. Note that `^` is exponentiation and not a bitwise xor. An `Int` can be constructed from a string or a long: `Int("-1234")` or `Int(-1234)`. Int also works with streams (`<<` and `>>`).
 
 ### Frac.hpp ###
-`Frac` is a fraction type -- a ratio of two Ints: `(355/113)`. A Frac can be constructed from two Ints, or from a string like `"-355/113"`. The arithmetic and relational operators are overloaded, and the following functions are provided.
+`Frac` is a fraction type -- a ratio of two Ints: `(355/113)`. A Frac can be constructed from two Ints, or from a string like `"-355/113"`. The arithmetic and relational operators are overloaded, and Frac works with streams. The following functions are provided as well:
 
 * `reciprocal()` returns the inverse
 * static function `GCD()` computes the greatest common denominator of two `Ints`
-* static function `from_double()` will produce a Frac that approximates the value of a double
+* (experimental): static function `from_double()` will produce a Frac that approximates the value of a double
 
 ### Mat.hpp ###
 `Mat<T>` is a two-dimensional matrix. Operators are overloaded for matrix-matrix, scalar-matrix operations, and equality testing. The following functions are provided as members:
@@ -67,7 +67,6 @@ Todo
 ----
 
 * Need documentation.
-* More test cases is better.
 * `Int`: implement Karatsuba multiplication 
 * `Int`: overload `++` and `--` operators
 * `Mat`: write nicer printing functions that align columns
