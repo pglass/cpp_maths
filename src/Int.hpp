@@ -7,6 +7,7 @@
 #include <limits>
 #include <string>
 #include <deque>
+#include <cassert>
 #include "common.hpp"
 
 /* Int - a (virtually) arbitrary precision integer
@@ -43,13 +44,15 @@ class Int {
     friend std::istream& operator>>(std::istream& i, Int& x);
     std::ostream& print(std::ostream& out) const;
     std::istream& read(std::istream& in);
+    friend std::ostream& operator<<(std::ostream& o, const std::deque<int32_t>& deque);
 
     void set_value(int32_t x);
     bool equals_int32(int32_t x) const;
     int32_t cmp(const Int& y) const;
     void times_power_ten(int32_t power);
 
-    inline bool is_odd() const { return bins[0] % 2 == 1; }
+    // inline bool is_odd() const { return bins[0] % 2 == 1; }
+    inline bool is_odd() const { return bins.at(0) % 2 == 1; }
     inline bool is_negative() const { return negative; }
     inline void negate() { negative = (equals_int32(0) ? false : !negative); }
 
@@ -84,8 +87,33 @@ class Int {
         for (size_t i = 0; i < amount; ++i)
             bins.push_front(0);
     }
-    inline void set_bin_from_back(int32_t i, int32_t val) { bins[bins.size() - 1 - i] = val; }
-    inline int32_t get_bin_from_back(int32_t i) const { return bins[bins.size() - 1 - i]; }
+//    inline void set_bin_from_back(int32_t i, int32_t val) { bins[bins.size() - 1 - i] = val; }
+    inline void set_bin_from_back(int32_t i, int32_t val) {
+//        std::cout << "set_bin_from_back" << std::endl;
+//        std::cout << "  bins.size() = " << bins.size() << std::endl;
+//        std::cout << "  1 + i = " << (1 + i) << std::endl;
+//        std::cout << "  bins.size() - (1+i) = " << (bins.size() - 1 - i) << std::endl;
+//        bins.at(bins.size() - 1 - i) = val;
+        bins[bins.size() - 1 - i] = val;
+    }
+//    inline int32_t get_bin_from_back(int32_t i) const { return bins[bins.size() - 1 - i]; }
+    inline int32_t get_bin_from_back(int32_t i) const { return bins.at(bins.size() - 1 - i); }
+
+    /*
+     * A number is stored in "reverse" order.
+     *      1111 222333444 555666777
+     * is stored as
+     *      [555666777, 222333444, 1111]
+     * but may also be stored correctly as
+     *      [555666777, 222333444, 1111, 0, 0, ..., 0]
+     * This method removes all trailing zeroes from the number.
+     *
+     * Note: This is part of a (kind of) hack to correct some algorithms. Ideally, we shouldn't
+     * need to call this. The problem is `y.bins.size() > x.bins.size()` doesn't necessarily mean
+     * `abs(y) > abs(x)`, which is an easy mistake to make. It would be more desireable to gurantee
+     * this property.
+     */
+    void cleanBins();
 
     /* All the following functions are helpers to the operator overloads.
      * Some aren't member functions because they have awkward in-place versions.

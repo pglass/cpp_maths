@@ -1,5 +1,18 @@
 #include "Int.hpp"
 
+// For debugging.
+std::ostream& operator<<(std::ostream& o, const std::deque<int32_t>& deque) {
+    std::deque<int32_t>::const_iterator i;
+    o << "Deque[";
+    for (i = deque.begin(); i < deque.end(); ++i) {
+        o << *i;
+        if (i < --deque.end()) {
+            o << ", ";
+        }
+    }
+    return o << "]";
+}
+
 std::ostream& operator<<(std::ostream& o, const Int& x) {
     return x.print(o);
 }
@@ -143,10 +156,12 @@ Int operator-(const Int& x, const Int& y) {
 
     if (x > y) {
         Int r(x);
+        r.cleanBins();
         r.subtract(y);
         return r;
     } else {
         Int r(y);
+        r.cleanBins();
         r.subtract(x);
         return -r;
     }
@@ -183,37 +198,37 @@ Int operator^(const Int& x, const Int& y) {
 }
 
 void Int::operator+=(const Int& other) {
-    if (this->negative && other.negative) {         // (-x) + (-y) --> -(x + y)
+    if (negative && other.negative) {         // (-x) + (-y) --> -(x + y)
         Int tmp = -other;   // needed if x and y same instance
-        this->negate();
+        negate();
         (*this) += tmp;
-        this->negate();
-    } else if (this->negative && !other.negative) { // (-x) + y --> -(x - y)
-        this->negate();
+        negate();
+    } else if (negative && !other.negative) { // (-x) + y --> -(x - y)
+        negate();
         (*this) -= other;
-        this->negate();
-    } else if (!this->negative && other.negative) { // x + (-y) --> x - y
+        negate();
+    } else if (!negative && other.negative) { // x + (-y) --> x - y
         (*this) -= (-other);
     } else {
-        this->add(Int(other));  // copy in case same instance
+        add(Int(other));  // copy in case same instance
     }
 }
 
 void Int::operator-=(const Int& other) {
-    if (this->negative && other.negative) {         // -x - (-y) --> -(x - y)
+    if (negative && other.negative) {         // -x - (-y) --> -(x - y)
         Int tmp = -other;
-        this->negate();
+        negate();
         (*this) -= tmp;
-        this->negate();
-    } else if (this->negative && !other.negative) { // -x - y --> -(x + y)
-        this->negate();
+        negate();
+    } else if (negative && !other.negative) { // -x - y --> -(x + y)
+        negate();
         (*this) += other;
-        this->negate();
-    } else if (!this->negative && other.negative) { // x - (-y) --> x + y
+        negate();
+    } else if (!negative && other.negative) { // x - (-y) --> x + y
         (*this) += (-other);
     } else {
         if (*this > other) {
-            this->subtract(other);
+            subtract(other);
         } else {
             Int r(other);
             r.subtract(*this);
@@ -226,12 +241,12 @@ void Int::operator-=(const Int& other) {
 void Int::operator*=(const Int& other) {
     Int r;
     multiply(*this, other, r);
-    r.negative = (this->negative != other.negative);
+    r.negative = (negative != other.negative);
     std::swap(*this, r);
 }
 
 void Int::operator/=(const Int& other) {
-    this->divide(Int(other));  // copy y in case x and y are the same instance
+    divide(Int(other));  // copy y in case x and y are the same instance
 }
 
 void Int::operator%=(const Int& other) {
@@ -286,7 +301,7 @@ Int::Int(int64_t x, size_t shift) : bins(shift, 0), negative(false) {
  */
 Int::Int(const Int& x, size_t shift) : bins(shift, 0), negative(x.negative) {
     for (size_t i = 0; i < x.bins.size(); ++i)
-        bins.push_back(x.bins[i]);
+		bins.push_back(x.bins.at(i));
 }
 
 /* Construct an Int from a std::string.
@@ -297,7 +312,7 @@ Int::Int(const Int& x, size_t shift) : bins(shift, 0), negative(x.negative) {
  */
 Int::Int(const std::string& x) : negative(false) {
     std::stringstream ss(x);
-    this->read(ss);
+    read(ss);
     if (ss.fail() || !ss.eof()) {
         set_value(0);
         throw std::invalid_argument("Failed to parse Int from '" + x + "'");
@@ -309,11 +324,11 @@ bool Int::equals_int32(int32_t x) const {
     int32_t val = abs(x);
     size_t i = 0;
     for (; i < bins.size() - 1; ++i)
-        if (bins[i])
+        if (bins.at(i))
             return false;
-    if (bins[i] == val && negative == (x < 0))
+	if (bins.at(i) == val && negative == (x < 0))
         return true;
-    else if (bins[i] == val && val == 0)
+	else if (bins.at(i) == val && val == 0)
         return true;
     return false;
 }
@@ -333,19 +348,25 @@ void Int::set_value(int32_t val) {
 int32_t Int::cmp_bins(const Int& x) const {
     int32_t tmp;
     int32_t offset = x.bins.size() - bins.size();
-    if (offset > 0) {  // x has more bins
+    if (offset < 0) {
+        return -x.cmp_bins(*this);
+    } else if (offset > 0) {  // x has more bins
         for (int32_t i = 0; i < offset; ++i)
             if (x.get_bin_from_back(i) != 0)
                 return -1;
-    } else if (offset < 0) {
-        return -x.cmp_bins(*this);
     }
-    if (offset < 0)
-        offset = -offset;
     for (size_t i = 0; i < bins.size(); ++i)
         if ((tmp = cmp_ints(get_bin_from_back(i), x.get_bin_from_back(offset + i))))
             return tmp;
     return 0;
+}
+
+void Int::cleanBins() {
+    if (DEBUG_INT_DIVIDE) std::cout << "Cleaning bins:" << std::endl << "  before: " << bins << std::endl;
+    while (bins.size() > 1 && bins.back() == 0) {
+        bins.pop_back();
+    }
+    if (DEBUG_INT_DIVIDE) std::cout << "  after:  " << bins << std::endl;
 }
 
 /* cmp - compare *this with x
@@ -377,16 +398,16 @@ void Int::add(const Int& x) {
     int32_t sum, val;
     size_t i = 0;
     for (; i < x.bins.size(); ++i) {
-        sum = bins[i] + x.bins[i] + carry;
+		sum = bins.at(i) + x.bins.at(i) + carry;
         val = sum % BIN_LIMIT;
         carry = max(0, sum / BIN_LIMIT);
-        bins[i] = val;
+		bins.at(i) = val;
     }
     while (carry != 0 && i < bins.size()) {
-        sum = bins[i] + carry;
+		sum = bins.at(i) + carry;
         val = sum % BIN_LIMIT;
         carry = max(0, sum / BIN_LIMIT);
-        bins[i] = val;
+		bins.at(i) = val;
         ++i;
     }
     if (carry != 0)
@@ -394,33 +415,51 @@ void Int::add(const Int& x) {
 }
 
 /* Int::subtract - subtract off x from *this
- *   This ignores signs and assumes that *this is larger than x in absolute value.
+ *   This ignores signs and assumes that *this is larger than or equal to x in absolute value.
  */
 void Int::subtract(const Int& x) {
     int32_t diff;
     int32_t borrow = 0;
     size_t i = 0;
+    if (DEBUG_INT_SUBTRACT) std::cout << "Subtracting: " << std::endl
+              << "    " << *this << std::endl
+              << "  - " << x << std::endl
+              << "  bins = " << bins << std::endl
+              << "  x.bins = " << x.bins << std::endl
+              << "  cmp_bins(x) = " << cmp_bins(x) << std::endl
+              << "  bins.size() = " << bins.size() << std::endl
+              << "  x.bins.size() = " << x.bins.size() << std::endl;
+    if (bins.size() > 1) assert(bins.back() != 0);
+    if (x.bins.size() > 1) assert(x.bins.back() != 0);
+    assert(abs(*this) >= abs(x));
     for (; i < x.bins.size(); ++i) {
-        diff = bins[i] - borrow - x.bins[i];
+        if (DEBUG_INT_SUBTRACT) std::cout << " i = " << i << "(subtract)" << std::endl;
+        if (DEBUG_INT_SUBTRACT) std::cout << "  *this = " << *this << std::endl;
+		diff = bins.at(i) - borrow - x.bins.at(i);
+        if (DEBUG_INT_SUBTRACT) std::cout << "  borrow = " << borrow << std::endl;
+        if (DEBUG_INT_SUBTRACT) std::cout << "  diff = " << diff << std::endl;
         if (diff < 0) {
             borrow = 1;
             diff += BIN_LIMIT;
         } else {
             borrow = 0;
         }
-        bins[i] = diff;
+        if (DEBUG_INT_SUBTRACT) std::cout << "  borrow = " << borrow << std::endl;
+        if (DEBUG_INT_SUBTRACT) std::cout << "  diff = " << diff << std::endl;
+        bins.at(i) = diff;
     }
     while (i < bins.size() && borrow != 0) {
-        diff = bins[i] - borrow;
+        diff = bins.at(i) - borrow;
         if (diff < 0) {
             borrow = 1;
             diff += BIN_LIMIT;
         } else {
             borrow = 0;
         }
-        bins[i] = diff;
+        bins.at(i) = diff;
         ++i;
     }
+    cleanBins();
 }
 
 void Int::times_power_ten(int32_t power) {
@@ -454,7 +493,7 @@ void multiply_by_int(const Int& x, int32_t y, Int& result) {
     int64_t prod;
     result.set_value(0);
     for (size_t i = 0; i < x.bins.size(); ++i) {
-        prod = ((int64_t) y) * ((int64_t) x.bins[i]);
+        prod = ((int64_t) y) * ((int64_t) x.bins.at(i));
         result += Int(prod, i);
     }
 }
@@ -466,7 +505,7 @@ void multiply(const Int& x, const Int& y, Int& result) {
     Int b;
     result.set_value(0);
     for (size_t i = 0; i < y.bins.size(); ++i) {
-        multiply_by_int(x, y.bins[i], b);
+        multiply_by_int(x, y.bins.at(i), b);
         result += Int(b, i);
     }
 }
@@ -476,6 +515,8 @@ void multiply(const Int& x, const Int& y, Int& result) {
  */
 void divide_by_int(const Int& x, int32_t y, Int& result) {
     result.bins.clear();
+    if (y == 0)
+        throw divide_by_zero_error();
     int64_t q, d;
     int64_t r = 0;
     for (size_t i = 0; i < x.bins.size(); ++i) {
@@ -502,26 +543,58 @@ void divide_by_int(const Int& x, int32_t y, Int& result) {
 void iter_quotient(const Int& y, const Int& x, int32_t& q, Int& r, int32_t step) {
     int32_t b = q;
     Int prod;
+    if (DEBUG_INT_DIVIDE) {
+        std::cout << "iter_quotient(y=" << y << ", x=" << x << ", q=" << q << ", r=" << r << ", step=" << step << ")" << std::endl;
+        std::cout << "  y.bins = " << y.bins << std::endl;
+        std::cout << "  x.bins = " << x.bins << std::endl;
+    }
     do {
         q = b;
         b += step;
+        if (DEBUG_INT_DIVIDE) std::cout << "  b = " << b << std::endl;
         multiply_by_int(x, b, prod);
+        if (DEBUG_INT_DIVIDE) std::cout << "  prod = " << prod << std::endl;
+        if (DEBUG_INT_DIVIDE) std::cout << "  prod.bins = " << prod.bins << std::endl;
         r = y - prod;
+        if (DEBUG_INT_DIVIDE) std::cout << "  r = " << r << std::endl;
     } while (!r.negative && x.cmp_bins(r) <= 0);
 }
 
 /* quotient_and_remainder - find q and r so that q * x + r = y.
  *   This assumes we'll have y and x so that x <= y < BIN_LIMIT * x,
  *   so we know after returning that q >= 1.
+ *
+ * -- Right now, iter_quotient (with step /= 2 before each call) checks
+ *  (q + step) and (q + 2*step) which is unnecessary:
+ *  We check:
+ *      q = 50 000 000 and possibly q = 1 000 000 000
+ *      q = 25 000 000 and possibly q = 50 000 000
+ *      q = 12 500 000 and possibly q = 25 000 000
+ *      ...
+ * We're binary searching here over the values of q in [1, 1 000 000 000).
+ * We stop when r = y - q*x is in [0, x).
+ *      1. Check the midpoint q' = 50 000 000
+ *          -- If the remainder r = y - q'*x >= 0, then q' <= q (branch right)
+ *              We may have the correct value of q, or we may need to increase q to
+ *              reduce r to be less than x.
+ *          -- Otherwise, the remainder r = y - q'*x < 0, the q' > q (branch left)
+ *              r is negative, so q is too big. We need to decrease q to get r >= 0.
  */
 void quotient_and_remainder(const Int& y, const Int& x, int32_t& q, Int& r) {
+    if (DEBUG_INT_DIVIDE) std::cout << "quotient_and_remainder(" << y << ", " << x << ")" << std::endl;
+    if (DEBUG_INT_DIVIDE) std::cout << "  y.bins = " << y.bins << std::endl;
+    if (DEBUG_INT_DIVIDE) std::cout << "  x.bins = " << x.bins << std::endl;
+    assert(!x.is_negative());
+    assert(!y.is_negative());
+    assert(x <= y && y < Int::BIN_LIMIT * x);
+
     int32_t step = Int::BIN_LIMIT;
     q = 0;
     while (step > 1) {
         step /= 2;
         iter_quotient(y, x, q, r, step);
     }
-    q += 1;
+    q += 1; // what is this for?
 }
 
 /* Int::divide - do an in-place division of two Ints
@@ -535,23 +608,37 @@ void Int::divide(const Int& x) {
         return;
     }
 
+
+//    bool result_is_neg = (negative != x.negative);
+    const Int& x_norm = (x.negative) ? -x : x;
+
+
     Int r, current;
     int32_t q;
-    size_t i = 0;
-    for (; i < bins.size(); ++i) {
-        current.bins[0] = get_bin_from_back(i);
-
-        if (x.cmp_bins(current) <= 0) {
-            quotient_and_remainder(current, x, q, r);
-            set_bin_from_back(i, q);
-            current = Int(r);
-        }
-        else {
-            set_bin_from_back(i, 0);
+    for (int32_t i = ((int32_t) bins.size()) - 1; i >= 0; --i) {
+        if (DEBUG_INT_DIVIDE) std::cout << "i = " << i << "(divide)" << std::endl
+                  << "  *this = " << *this << std::endl
+                  << "  bins.size() = " << bins.size() << std::endl
+                  << "  bins = " << bins << std::endl
+                  << "  x_norm = " << x_norm << std::endl;
+        assert(current.bins.size() > 0);
+        assert(0 <= i && ((size_t) i) < bins.size());
+        current.bins.at(0) = bins.at(i);
+        if (DEBUG_INT_DIVIDE) std::cout << "  current = " << current << std::endl;
+        if (x_norm.cmp_bins(current) <= 0) {    // if x_norm divides current (with some remainder)
+            quotient_and_remainder(current, x_norm, q, r);
+            if (DEBUG_INT_DIVIDE) std::cout << "  setting index " << i << " = " << q << std::endl;
+            assert(q != 0);
+            bins.at(i) = q;
+            current = r;
+        } else {
+            if (DEBUG_INT_DIVIDE) std::cout << "  setting index " << i << " = ZERO" << std::endl;
+            bins.at(i) = 0;
+            cleanBins();
         }
         current.shift(1);
+        current.cleanBins();
     }
-
     negative = (negative != x.negative);
 }
 
@@ -566,9 +653,15 @@ void modulo(const Int& x, const Int& y, Int& result) {
     if (b.negative)
         b.negate();
 
+    if (DEBUG_INT_MODULO) {
+        std::cout << "Int::modulo(x, y)" << std::endl
+                  << "  a = " << a << std::endl
+                  << "  b = " << b << std::endl;
+    }
     Int q = a / b;
+    if (DEBUG_INT_MODULO) std::cout << "  q = " << q << std::endl;
     result = a - q * b;
-
+    if (DEBUG_INT_MODULO) std::cout << "  result = " << result << std::endl;
     if (result.equals_int32(0))
         return;
     if (x.negative && y.negative)

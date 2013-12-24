@@ -154,14 +154,14 @@ TEST(crossProduct) {
 TEST(norm) {
     Vec<int> v(IVALS, 4);   // (1, 2, 3, 4)
     Vec<double> w(v);       // (1.0, 2.0, 3.0, 4.0)
-    CHECK(float_equals(v.norm<double>(), sqrt(30)));
-    CHECK(float_equals(w.norm(), sqrt(30)));
-    CHECK(v.norm() == int(sqrt(30)));
-    CHECK(w.norm<int>() == int(sqrt(30)));
+    CHECK(float_equals(v.norm<double>(), sqrt(30.0)));
+    CHECK(float_equals(w.norm(), sqrt(30.0)));
+    CHECK(v.norm() == int(sqrt(30.0)));
+    CHECK(w.norm<int>() == int(sqrt(30.0)));
 }
 
 TEST(unit_vector) {
-    double x_vals[] = { 1.0/sqrt(30), 2.0/sqrt(30), 3.0/sqrt(30), 4.0/sqrt(30) };
+    double x_vals[] = { 1.0/sqrt(30.0), 2.0/sqrt(30.0), 3.0/sqrt(30.0), 4.0/sqrt(30.0) };
     Vec<double> w(IVALS, 4);    // (1.0, 2.0, 3.0, 4.0)
     Vec<double> x(x_vals, 4);
     CHECK(stringEquals(w.unit_vector(), x));

@@ -9,8 +9,6 @@ using namespace std;
 
 namespace FracTest {
 
-numeric_limits<double> dbl_limits;
-
 bool runInstream(const std::string& input, const Frac& expected) {
     std::stringstream ss;
     ss << input;
@@ -46,7 +44,21 @@ TEST(constructionAndOutput) {
     CHECK_THROW(Frac("-/"), invalid_argument);
     CHECK_THROW(Frac("1/"), invalid_argument);
     CHECK_THROW(Frac("  1   /   "), invalid_argument);
+}
 
+TEST(isFiniteFunction) {
+    CHECK(isFinite(0.0));
+    CHECK(isFinite(-1.0));
+    CHECK(isFinite(1.0));
+    CHECK(isFinite(numeric_limits<double>::min()));
+    CHECK(isFinite(numeric_limits<double>::max()));
+    CHECK(!isFinite(numeric_limits<double>::infinity()));
+    CHECK(!isFinite(-numeric_limits<double>::infinity()));
+    CHECK(!isFinite(numeric_limits<double>::signaling_NaN()));
+    CHECK(!isFinite(numeric_limits<double>::quiet_NaN()));
+}
+
+TEST(fromDouble) {
     CHECK(testOutput(Frac::from_double(0.0), "(0/1)"));
     CHECK(testOutput(Frac::from_double(1.0), "(1/1)"));
     CHECK(testOutput(Frac::from_double(-1.0), "(-1/1)"));
@@ -58,48 +70,47 @@ TEST(constructionAndOutput) {
     CHECK(testOutput(Frac::from_double(0.11111), "(11111/100000)"));
     CHECK(testOutput(Frac::from_double(0.123456789), "(123456789/1000000000)"));
 //    CHECK(testOutput(Frac::from_double(987654321.123456789), "(987654321123456789/1000000000000000000)"));
-    CHECK(testOutput(Frac::from_double(dbl_limits.max()), 
+    CHECK(testOutput(Frac::from_double(numeric_limits<double>::max()),
         "(1797693134862315708145274237317043567980705675258449965989174768031"
          "5726078002853876058955863276687817154045895351438246423432132688946"
          "4182768467546703537516986049910576551282076245490090389328944075868"
          "5084551339423045832369032229481658085593321233482747978262041447231"
          "68738177180919299881250404026184124858368/1)"));
 
-	CHECK(testOutput(Frac::from_double(1.00000000000000000000000000001), "(1/1)"));
-    CHECK(testOutput(Frac::from_double(dbl_limits.min()), 
-		"(0/1)"));
+    CHECK(testOutput(Frac::from_double(1.00000000000000000000000000001), "(1/1)"));
+    CHECK(testOutput(Frac::from_double(numeric_limits<double>::min()), "(0/1)"));
 
-    CHECK_THROW(Frac::from_double(dbl_limits.infinity()), invalid_argument);
-    CHECK_THROW(Frac::from_double(dbl_limits.quiet_NaN()), invalid_argument);
-    CHECK_THROW(Frac::from_double(dbl_limits.signaling_NaN()), invalid_argument);
+    CHECK_THROW(Frac::from_double(numeric_limits<double>::infinity()), invalid_argument);
+    CHECK_THROW(Frac::from_double(numeric_limits<double>::quiet_NaN()), invalid_argument);
+    CHECK_THROW(Frac::from_double(numeric_limits<double>::signaling_NaN()), invalid_argument);
 }
 
 TEST(fracInstream) {
     // arg0 is the input, arg1 is the expected output
-    CHECK(runInstream("0",      Frac(0)));
-    CHECK(runInstream("(0)",    Frac(0)));
-    CHECK(runInstream("0/1",    Frac(0)));
-    CHECK(runInstream("(0/1)",  Frac(0)));
-    CHECK(runInstream("-0",     Frac(0)));
-    CHECK(runInstream("-0/1",   Frac(0)));
-    CHECK(runInstream("-0/-1",  Frac(0)));
-    CHECK(runInstream("0/-1",   Frac(0)));
+    CHECK(runInstream("0",     Frac(0)));
+    CHECK(runInstream("(0)",   Frac(0)));
+    CHECK(runInstream("0/1",   Frac(0)));
+    CHECK(runInstream("(0/1)", Frac(0)));
+    CHECK(runInstream("-0",    Frac(0)));
+    CHECK(runInstream("-0/1",  Frac(0)));
+    CHECK(runInstream("-0/-1", Frac(0)));
+    CHECK(runInstream("0/-1",  Frac(0)));
     CHECK(runInstream("(00000/11111111)", Frac(0)));
 
-    CHECK(runInstream("1/1", Frac(1)));
-    CHECK(runInstream("(1/1)", Frac(1)));
-    CHECK(runInstream("(-1/1)", Frac(-1)));
-    CHECK(runInstream("(1/-1)", Frac(-1)));
+    CHECK(runInstream("1/1",     Frac(1)));
+    CHECK(runInstream("(1/1)",   Frac(1)));
+    CHECK(runInstream("(-1/1)",  Frac(-1)));
+    CHECK(runInstream("(1/-1)",  Frac(-1)));
     CHECK(runInstream("(-1/-1)", Frac(1)));
 
     CHECK(runInstream("(1/2)", Frac(1, 2)));
-    CHECK(runInstream("1/2", Frac(1, 2)));
-
+    CHECK(runInstream("1/2",   Frac(1, 2)));
 
     CHECK(runInstream("(1/23)", Frac(1, 23)));
     CHECK(runInstream("(1234/5678)", Frac(1234, 5678)));
     CHECK(runInstream("123456789123456789/987654321987654321",
-                      Frac(Int("123456789123456789"), Int("987654321987654321"))));
+                      Frac(Int("123456789123456789"),
+                           Int("987654321987654321"))));
 }
 
 TEST(relationalOperators) {

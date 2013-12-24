@@ -1,6 +1,10 @@
 #include "common.hpp"
 
-
+bool isFinite(double d) {
+   return (d == d
+           && d != std::numeric_limits<double>::infinity()
+           && d != -std::numeric_limits<double>::infinity());
+}
 
 int float_cmp(double x, double y) {
     double d = y - x;

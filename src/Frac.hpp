@@ -5,11 +5,10 @@
 #include <string>
 #include <limits>
 #include <cmath>
+#include "common.hpp"
 #include "Int.hpp"
 
 using namespace std;
-
-const bool DEBUG_FRAC = false;
 
 /* Frac - represents a fraction tt/bb
  *   The fraction should always be fully reduced.
@@ -22,7 +21,12 @@ class Frac {
     explicit Frac(int x) : tt(x), bb(1) { }
     explicit Frac(const Int& x) : tt(x), bb(1) { }
     explicit Frac(const string& x);
-    Frac(const Int& top, const Int& bottom) : tt(top), bb(bottom) { 
+    Frac(const Int& top, const Int& bottom) : tt(top), bb(bottom) {
+        if (DEBUG_FRAC) {
+            cout << "Frac(const Int&, const Int&)" << endl;
+            cout << "  tt = " << tt << endl;
+            cout << "  bb = " << bb << endl;
+        }
         if (bb.equals_int32(0))
             throw divide_by_zero_error();
         normalize();

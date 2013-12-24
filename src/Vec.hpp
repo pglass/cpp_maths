@@ -224,12 +224,12 @@ Vec<T> Vec<T>::vector_triple_product(const Vec<T>& x, const Vec<T>& y, const Vec
 
 template <typename T> 
 T Vec<T>::norm() {
-    return sqrt(dot(*this));
+    return sqrt((double) dot(*this));
 }
 
 template <typename T> template <typename S> 
 S Vec<T>::norm() {
-    return sqrt(dot(*this));
+    return sqrt((double) dot(*this));
 }
 
 template <typename T>

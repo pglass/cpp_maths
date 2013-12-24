@@ -4,6 +4,12 @@
 #include <sstream>
 #include <stdexcept>
 
+const bool DEBUG_INT_SUBTRACT = false;
+const bool DEBUG_INT_DIVIDE = false;
+const bool DEBUG_INT_MODULO = false;
+const bool DEBUG_FRAC = false;
+
+#include <limits>
 #include <climits>
 #if INT_MAX == 2147483647
     typedef int int32_t;
@@ -29,6 +35,8 @@ const double EPSILON = 0.00001;
 struct divide_by_zero_error : public std::domain_error {
     divide_by_zero_error() : std::domain_error("cannot divide by zero") { }
 };
+
+bool isFinite(double d);
 
 template <typename T>
 inline T abs(const T& a) {

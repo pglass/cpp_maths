@@ -12,42 +12,47 @@
 using namespace std;
 
 /* Factor represents x^n for an integer n */
-struct Factor {
+class Factor {
+  public:
     Factor(const string& _id, const Int& _power) : id(_id), power(_power) {}
-    string id;
-    Int power;
-
-    inline string getId() const { return id; }
-
+    inline string& getId() { return id; }
+    inline const std::string& getId() const { return id; }
+    inline Int& getPower() { return power; }
+    inline const Int& getPower() const { return power; }
     friend bool operator <  (const Factor& x, const Factor& y);
     friend bool operator == (const Factor& x, const Factor& y);
     friend bool operator != (const Factor& x, const Factor& y) { return !(x == y); }
+    friend std::ostream& operator<<(std::ostream& o, const Factor& factor);
+  private:
+    string id;
+    Int power;
 };
 
-ostream& operator<<(ostream& out, const Factor& x) {
-    if (x.power.equals_int32(1))
-        return out << x.id;
+ostream& operator<<(ostream& o, const Factor& factor) {
+    if (factor.power.equals_int32(1))
+        return o << factor.id;
     else
-        return out << x.id << "^" << x.power;
+        return o << factor.id << "^" << factor.power;
 }
 
 bool operator<(const Factor& x, const Factor& y) {
     if (x.id < y.id)
         return true;
-    else if (x.id == y.id and x.power < y.power)
+    else if (x.id == y.id && x.power < y.power)
         return true;
     return false;
 }
 
 bool operator==(const Factor& x, const Factor& y) {
-    return (x.id == y.id and x.power == y.power);
+    return (x.id == y.id && x.power == y.power);
 }
 
 static const Frac FRAC_ZERO = Frac(0);
 static const Frac FRAC_ONE = Frac(1);
 
 /* Term represents c * x1^n1 * x2^n2 * x3^n3 * ... */
-struct Term {
+class Term {
+  public:
     typedef map<string, Factor>::iterator       map_iter_t;
     typedef map<string, Factor>::const_iterator map_citer_t;
 
@@ -55,13 +60,15 @@ struct Term {
     Term(const Frac& c, const Factor& x) : coeff(c) { appendFactor(x); }
     Term(const Frac& c, const vector<Factor>& _factors);
 
+    inline const Frac& coefficient() const { return coeff; }
+    inline Frac& coefficient() { return coeff; }
     inline void negate() { coeff *= -1; }
     void appendFactor(const Factor& x);
 
     friend Term operator * (const Factor& x, const Factor& y);
     friend Term operator * (const Term& x,   const Term& y);
     friend Term operator * (const Term& x,   const Factor& y);
-    friend Term operator * (const Factor& x, const Term& y) { return y * x; }
+    inline friend Term operator * (const Factor& x, const Term& y) { return y * x; }
 
     friend void operator *= (Term& x, const Factor& y);
     friend void operator *= (Term& x, const Term& y);
@@ -69,6 +76,8 @@ struct Term {
     friend bool operator <  (const Term& x, const Term& y);
     friend bool operator == (const Term& x, const Term& y);
 
+    friend std::ostream& operator<<(std::ostream& o, const Term& term);
+  private:
     Frac coeff;
     map<string, Factor> factors;
 };
@@ -79,39 +88,38 @@ Term::Term(const Frac& c, const vector<Factor>& _factors) : coeff(c) {
         appendFactor(*it);
 }
 
-/* Multiply this Term by the Factor x */
+/* appending a factor to a Term is a multiplication by the Factor */
 void Term::appendFactor(const Factor& x) {
     Term::map_iter_t it = factors.find(x.getId());
     if (it == factors.end()) {
-        // I don't use operator[] because it requires a default constructor on Factor
-        // (which I don't provide. A Factor does not have a logical default value)
+        // Don't use operator[] -- it requires a default constructor on Factor
+        // which doesn't exist. A Factor does not have a logical default value.
         factors.insert(map<string, Factor>::value_type(x.getId(), x));
     } else {
-        it->second.power += x.power;
+        it->second.getPower() += x.getPower();
     }
 }
 
-ostream& operator<<(ostream& out, const Term& x) {
+ostream& operator<<(ostream& o, const Term& term) {
     Term::map_citer_t it;
-    Term::map_citer_t end_it;
-    if (x.coeff == FRAC_ZERO) {
-        out << "0";
-    } else if (x.factors.size() == 0) {
-        if (x.coeff == FRAC_ONE)
-            out << "1";
+    if (term.coeff == FRAC_ZERO) {
+        o << "0";
+    } else if (term.factors.size() == 0) {
+        if (term.coeff == FRAC_ONE)
+            o << "1";
         else
-            out << x.coeff;
-    } else if (x.coeff == FRAC_ONE) {
-        it = x.factors.begin();
-        out << it->second;
-        for (it++; it != x.factors.end(); ++it)
-            out << " * " << it->second;
+            o << term.coeff;
+    } else if (term.coeff == FRAC_ONE) {
+        it = term.factors.begin();
+        o << it->second;
+        for (it++; it != term.factors.end(); ++it)
+            o << " * " << it->second;
     } else {
-        out << x.coeff;
-        for (it = x.factors.begin(); it != x.factors.end(); ++it)
-            out << " * " << it->second;
+        o << term.coeff;
+        for (it = term.factors.begin(); it != term.factors.end(); ++it)
+            o << " * " << it->second;
     }
-    return out;
+    return o;
 }
 
 /* Compare terms based on the Factors only. This ignores the coefficient.
@@ -127,7 +135,7 @@ bool operator<(const Term& x, const Term& y) {
     } else {
         xi = x.factors.begin();
         yi = y.factors.begin();
-        for (; xi != x.factors.end() and yi != y.factors.end(); ++xi, ++yi) {
+        for (; xi != x.factors.end() && yi != y.factors.end(); ++xi, ++yi) {
             if (xi->second < yi->second)
                 return true;
         }
@@ -142,7 +150,7 @@ bool operator==(const Term& x, const Term& y) {
         return false;
     xi = x.factors.begin();
     yi = y.factors.begin();
-    for (; xi != x.factors.end() and yi != y.factors.end(); ++xi, ++yi)
+    for (; xi != x.factors.end() && yi != y.factors.end(); ++xi, ++yi)
         if (xi->second != yi->second)
             return false;
     return true;
@@ -165,7 +173,7 @@ Term operator*(const Term& x, const Term& y) {
     Term::map_citer_t it;
     for (it = y.factors.begin(); it != y.factors.end(); ++it)
         term.appendFactor(it->second);
-    term.coeff *= y.coeff;
+    term.coefficient() *= y.coeff;
     return term;
 }
 
@@ -181,7 +189,8 @@ void operator*=(Term& x, const Term& y) {
 }
 
 /* Poly represents a polynomial with integer exponents */
-struct Poly {
+class Poly {
+  public:
     typedef list<Term>::iterator       list_iter_t;
     typedef list<Term>::const_iterator list_citer_t;
 
@@ -194,13 +203,15 @@ struct Poly {
     void appendTerms(const list<Term>& x);
     inline size_t numTerms() { return terms.size(); }
 
-    friend Poly operator +  (const Factor& x, const Factor& y);
-    friend Poly operator -  (const Factor& x, const Factor& y);
-    friend Poly operator +  (const Term& x, const Term& y);
-    friend Poly operator -  (const Term& x, const Term& y);
-    friend void operator += (Poly& p, const Factor& y);
-    friend void operator -= (Poly& p, const Factor& y);
+    friend Poly operator + (const Factor& x, const Factor& y);
+    friend Poly operator - (const Factor& x, const Factor& y);
+    friend Poly operator + (const Term& x, const Term& y);
+    friend Poly operator - (const Term& x, const Term& y);
+    void operator += (const Factor& y);
+    void operator -= (const Factor& y);
 
+    friend std::ostream& operator<<(std::ostream& o, const Poly& poly);
+  private:
     list<Term> terms;
 };
 
@@ -215,30 +226,29 @@ Poly::Poly(const vector<Term>& _terms) {
         appendTerm(_terms[i]);
 }
 
-ostream& operator<<(ostream& out, const Poly& p) {
+std::ostream& operator<<(std::ostream& o, const Poly& poly) {
     Poly::list_citer_t it;
-    if (p.terms.size() > 0) {
-        it = p.terms.begin();
-        out << *it;
+    if (poly.terms.size() > 0) {
+        it = poly.terms.begin();
+        o << *it;
         ++it;
-        for (; it != p.terms.end(); ++it)
-            out << " + " << *it;
+        for (; it != poly.terms.end(); ++it)
+            o << " + " << *it;
     }
-    return out;
+    return o;
 }
 
 void Poly::appendTerm(const Term& x) {
     Poly::list_iter_t it;
-    for (it = terms.begin(); it != terms.end() and *it < x; ++it)
+    for (it = terms.begin(); it != terms.end() && *it < x; ++it)
         ;  // iterate until *it >= x
     if (*it == x)
-        it->coeff += x.coeff;
+        it->coefficient() += x.coefficient();
     else
         terms.insert(it, x);
 }
 
 void Poly::appendTerms(const list<Term>& x) {
-//    terms.merge(list<Term>(x));  // merge two sorted lists
     list<Term> copy(x);
     terms.merge(copy);
 }
@@ -256,8 +266,8 @@ Poly operator+(const Term& x, const Term& y) {
     return p;
 }
 
-void operator+=(Poly& p, const Factor& y) {
-    p.appendTerm(Term(y));
+void Poly::operator+=(const Factor& y) {
+    this->appendTerm(Term(y));
 }
 
 Poly operator-(const Factor& x, const Factor& y) {
@@ -274,8 +284,8 @@ Poly operator-(const Term& x, const Term& y) {
     return p;
 }
 
-void operator-=(Poly& p, const Factor& y) {
-    p.appendTerm(Term(Frac(-1), y));
+void Poly::operator-=(const Factor& y) {
+    this->appendTerm(Term(Frac(-1), y));
 }
 
 #endif // POLY_HPP

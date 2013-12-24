@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 2.6)
 project(cpp_maths)
 
-add_definitions(-Wall)
+if(MSVC)
+
+else()
+    add_definitions(-Wall -Wextra)
+endif()
 
 add_subdirectory(unittest-cpp)
 include_directories(unittest-cpp/UnitTest++)
 
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 set(SOURCES
+    ${SRC_DIR}/common.hpp ${SRC_DIR}/common.cpp
     ${SRC_DIR}/Int.hpp ${SRC_DIR}/Int.cpp
     ${SRC_DIR}/Frac.hpp ${SRC_DIR}/Frac.cpp
     ${SRC_DIR}/Vec.hpp

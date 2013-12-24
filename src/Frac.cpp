@@ -67,24 +67,33 @@ istream& Frac::read(istream& in) {
  *      inaccuracy, giving an undesirable fraction. Setting this
  *      too low will not capture enough digits and give a fraction
  *      that does not correctly represent the original double.
+ * WARNING: This is experimental.
  */
 Frac Frac::from_double(double x, int precision) {
     /* convert to a string and parse from there */
+    if (DEBUG_FRAC) cout << "from_double(x=" << x << ", " << precision << ")" << endl;
     stringstream ss;
     ss.precision(precision);
     ss << fixed << x;
     string sx = ss.str();
-    if (DEBUG_FRAC) cout << x << " : " << sx << endl;
-    if (!isfinite(x))
+    if (!isFinite(x))
         throw invalid_argument("cannot construct Frac from double '" + sx + "'");
     size_t k = sx.find('.');
     size_t num_frac_digits = sx.length() - k;
+    if (DEBUG_FRAC) {
+        cout << "  sx = " << sx << endl;
+        cout << "  k = " << k << endl;
+        cout << "  num_frac_digits = " << num_frac_digits << endl;
+    }
     sx.erase(sx.begin() + k);
+    if (DEBUG_FRAC) cout << "  sx = " << sx << endl;
     Int tt(sx);
+    if (DEBUG_FRAC) cout << "  tt = " << tt << endl;
     Int bb(1);
     bb.times_power_ten(num_frac_digits - 1);
+    if (DEBUG_FRAC) cout << "  bb = " << bb << endl;
     Frac result(tt, bb);
-    if (DEBUG_FRAC) cout << "   --> " << result << endl;
+    if (DEBUG_FRAC) cout << "  result = " << result << endl;
     return result;
 }
 
@@ -100,6 +109,9 @@ Int Frac::GCD(const Int& x, const Int& y) {
 
 /* Assumes a and b are nonnegative, and that a > b  */
 Int Frac::nochecks_gcd(const Int& x, const Int& y) {
+    if (DEBUG_FRAC) {
+        cout << "nochecks_gcd(x=" << x << ", y=" << y << ")" << endl;
+    }
     Int a = x;
     Int b = y;
     Int r;
@@ -111,7 +123,7 @@ Int Frac::nochecks_gcd(const Int& x, const Int& y) {
     return a;
 }
 
-/* Parse a fraction of the basic form <integer>/<integer>
+/* Parse a fraction of the basic form INT/INT
  * This throws an invalid_invalid argument on bad inputs.
  */
 Frac::Frac(const string& x) : tt(0), bb(1) {
@@ -133,11 +145,13 @@ Frac::Frac(const string& x) : tt(0), bb(1) {
 
 void Frac::normalize() {
     /* tt will store the sign, bb is always positive */
+    if (DEBUG_FRAC) cout << "Frac::normalize()" << endl;
     if (bb.is_negative()) {
         bb.negate();
         tt.negate();
     }
     Int c = Frac::GCD(tt, bb);
+    if (DEBUG_FRAC) cout << "GCD = " << c << endl;
     tt /= c;
     bb /= c;
 }
